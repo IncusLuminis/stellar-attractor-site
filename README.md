@@ -1,6 +1,6 @@
-# {{PROJECT_NAME}}
+# stellar-attractor-site
 
-> {{PROJECT_DESCRIPTION}}
+> Stellar Attractor public website.
 
 ---
 
