@@ -1,0 +1,82 @@
+:root {
+  --sa-colors-bg: #02070d;
+  --sa-colors-panel-bg: #00080e;
+  --sa-colors-panel-bg-soft: rgba(0, 12, 20, 0.72);
+  --sa-colors-cyan: #5af0ff;
+  --sa-colors-cyan-bright: #8ffcff;
+  --sa-colors-cyan-deep: #22c7f3;
+  --sa-colors-cyan-dim: #2ad7ff;
+  --sa-colors-cyan-soft: rgba(90, 240, 255, 0.28);
+  --sa-colors-text-main: #d8fbff;
+  --sa-colors-text-dim: #9fc7d4;
+  --sa-colors-text-faint: #6f9faa;
+  --sa-colors-green: #52ff9a;
+  --sa-colors-yellow: #ffd85a;
+  --sa-colors-orange: #ff9c52;
+  --sa-colors-red: #ff5f7f;
+  --sa-font-mono: Menlo, Consolas, "Roboto Mono", monospace;
+  --sa-table-header-bg: #061722;
+  --sa-table-header-text: #8ffcff;
+  --sa-table-cell-bg: #02070d;
+  --sa-table-cell-text: #d8fbff;
+  --sa-table-edge-color: #2ad7ff;
+  --sa-table-edge-alpha: 0.28;
+  --sa-table-edge-width: 0.25;
+  --sa-chart-line-color: #5af0ff;
+  --sa-chart-line-width: 1.5;
+  --sa-chart-grid-color: #2ad7ff;
+  --sa-chart-grid-alpha: 0.12;
+  --sa-chart-marker-color: #8ffcff;
+}
+.sa-hud {
+  position: relative;
+  font-family: var(--sa-font-mono);
+  color: var(--sa-colors-text-main);
+}
+
+.sa-panel-bg {
+  fill: var(--sa-colors-panel-bg);
+  stroke: none;
+}
+
+.sa-frame-outer {
+  fill: none;
+  stroke: var(--sa-colors-cyan-deep);
+  stroke-width: 2.4;
+  stroke-opacity: 0.95;
+  filter: drop-shadow(0 0 5px rgba(90,240,255,0.55));
+}
+
+.sa-frame-inner {
+  fill: none;
+  stroke: var(--sa-colors-cyan);
+  stroke-width: 1;
+  stroke-opacity: 0.48;
+}
+
+.sa-frame-micro {
+  fill: none;
+  stroke: var(--sa-colors-cyan);
+  stroke-width: 1;
+  stroke-opacity: 0.18;
+}
+
+.sa-accent {
+  fill: rgba(64,210,245,0.82);
+  stroke: var(--sa-colors-cyan-bright);
+  stroke-width: 1.2;
+  stroke-opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(90,240,255,0.45));
+}
+
+.sa-title {
+  color: var(--sa-colors-cyan-bright);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px rgba(90,240,255,0.55);
+}
+
+.sa-text {
+  color: var(--sa-colors-text-dim);
+  line-height: 1.65;
+}

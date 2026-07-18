@@ -1,0 +1,41 @@
+{
+  "colors": {
+    "bg": "#02070d",
+    "panel_bg": "#00080e",
+    "panel_bg_soft": "rgba(0, 12, 20, 0.72)",
+
+    "cyan": "#5af0ff",
+    "cyan_bright": "#8ffcff",
+    "cyan_deep": "#22c7f3",
+    "cyan_dim": "#2ad7ff",
+    "cyan_soft": "rgba(90, 240, 255, 0.28)",
+
+    "text_main": "#d8fbff",
+    "text_dim": "#9fc7d4",
+    "text_faint": "#6f9faa",
+
+    "green": "#52ff9a",
+    "yellow": "#ffd85a",
+    "orange": "#ff9c52",
+    "red": "#ff5f7f"
+  },
+  "font": {
+    "mono": "Menlo, Consolas, \"Roboto Mono\", monospace"
+  },
+  "table": {
+    "header_bg": "#061722",
+    "header_text": "#8ffcff",
+    "cell_bg": "#02070d",
+    "cell_text": "#d8fbff",
+    "edge_color": "#2ad7ff",
+    "edge_alpha": "0.28",
+    "edge_width": "0.25"
+  },
+  "chart": {
+    "line_color": "#5af0ff",
+    "line_width": "1.5",
+    "grid_color": "#2ad7ff",
+    "grid_alpha": "0.12",
+    "marker_color": "#8ffcff"
+  }
+}
