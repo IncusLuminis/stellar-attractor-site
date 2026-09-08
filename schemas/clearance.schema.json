@@ -1,0 +1,13 @@
+{
+  "$id": "clearance.schema.json",
+  "title": "Clearance",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "string",
+  "enum": [
+    "guest",
+    "civilian",
+    "authorized",
+    "restricted",
+    "classified"
+  ]
+}

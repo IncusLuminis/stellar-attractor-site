@@ -1,0 +1,22 @@
+{
+  "id": "person.zane",
+  "type": "person",
+  "slug": "zane",
+  "name": {
+    "ru": "Зейн",
+    "en": "Zane"
+  },
+  "shortDescription": {
+    "ru": "Кибернетически восстановленный исследователь Базы №32, двадцать четыре года проведший в одиночестве на удалённой станции у Фомальгаута.",
+    "en": "Cybernetically reconstructed research specialist of Base #32 who spent twenty-four years alone aboard a remote outpost orbiting Fomalhaut."
+  },
+  "description": {
+    "ru": "Официально Зейн не относится ни к военному персоналу, ни к командному составу станции, но его опыт сделал его незаменимым членом научного сообщества Базы №32. До реконструкции он был специалистом Корпуса гражданских исследований и участвовал в первом контакте человечества с неизвестной разумной цивилизацией.",
+    "en": "Officially neither military personnel nor command staff, Zane's unique experience has made him an invaluable member of the Base #32 scientific community. Before his reconstruction he was an exploration specialist with the Civil Exploration Corps and took part in humanity's first encounter with an unknown intelligent civilisation."
+  },
+  "clearance": "civilian",
+  "tags": ["base-32", "research", "first-contact", "civil-exploration-corps"],
+  "relations": [
+    { "type": "assigned_to", "target": "station.base32" }
+  ]
+}

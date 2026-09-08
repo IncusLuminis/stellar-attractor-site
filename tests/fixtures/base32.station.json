@@ -1,0 +1,18 @@
+{
+  "id": "station.base32",
+  "type": "station",
+  "slug": "base32",
+  "name": {
+    "ru": "База №32",
+    "en": "Base #32"
+  },
+  "shortDescription": {
+    "ru": "Научно-исследовательская станция Содружества, дом для персонала и научного сообщества, к которому принадлежит Зейн.",
+    "en": "A Commonwealth research station; home to the personnel and scientific community Zane belongs to."
+  },
+  "clearance": "guest",
+  "tags": ["station", "commonwealth", "research"],
+  "relations": [
+    { "type": "hosts", "target": "person.zane" }
+  ]
+}

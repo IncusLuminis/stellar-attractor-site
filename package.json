@@ -11,6 +11,8 @@
     "preview": "astro preview",
     "validate:entities": "node scripts/validate-entities.ts",
     "build:search-index": "node scripts/build-search-index.ts",
+    "schemas:generate": "node scripts/generate-schemas.ts",
+    "schemas:check": "node scripts/generate-schemas.ts --check",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "astro check"
@@ -24,6 +26,7 @@
     "preact": "^10.29.8",
     "typescript": "^5.7.2",
     "vite": "^6.3.6",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "zod": "4.5.4"
   }
 }

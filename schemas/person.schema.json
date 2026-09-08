@@ -1,0 +1,198 @@
+{
+  "$id": "person.schema.json",
+  "title": "UniverseEntity — person",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$"
+    },
+    "type": {
+      "type": "string",
+      "const": "person"
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "object",
+      "properties": {
+        "ru": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "ru",
+        "en"
+      ],
+      "additionalProperties": false
+    },
+    "shortDescription": {
+      "type": "object",
+      "properties": {
+        "ru": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "ru",
+        "en"
+      ],
+      "additionalProperties": false
+    },
+    "description": {
+      "type": "object",
+      "properties": {
+        "ru": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "ru",
+        "en"
+      ],
+      "additionalProperties": false
+    },
+    "media": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!.*\\.(?:[pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG]|[wW][eE][bB][pP]|[aA][vV][iI][fF]|[gG][iI][fF]|[sS][vV][gG]|[mM][pP]4|[wW][eE][bB][mM]|[mM][oO][vV]|[mM]4[vV]|[mM][pP]3|[wW][aA][vV]|[oO][gG][gG]|[pP][dD][fF])$)\\S(?:.*\\S)?$"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "portrait",
+              "hero",
+              "gallery",
+              "diagram",
+              "living-preview",
+              "thumbnail"
+            ]
+          },
+          "alt": {
+            "type": "object",
+            "properties": {
+              "ru": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "ru",
+              "en"
+            ],
+            "additionalProperties": false
+          },
+          "caption": {
+            "type": "object",
+            "properties": {
+              "ru": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "ru",
+              "en"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "type",
+          "target"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "clearance": {
+      "type": "string",
+      "enum": [
+        "guest",
+        "civilian",
+        "authorized",
+        "restricted",
+        "classified"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "slug",
+    "name"
+  ],
+  "additionalProperties": false
+}

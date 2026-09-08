@@ -1,0 +1,68 @@
+{
+  "$id": "media-reference.schema.json",
+  "title": "MediaReference",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*\\.(?:[pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG]|[wW][eE][bB][pP]|[aA][vV][iI][fF]|[gG][iI][fF]|[sS][vV][gG]|[mM][pP]4|[wW][eE][bB][mM]|[mM][oO][vV]|[mM]4[vV]|[mM][pP]3|[wW][aA][vV]|[oO][gG][gG]|[pP][dD][fF])$)\\S(?:.*\\S)?$"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "portrait",
+        "hero",
+        "gallery",
+        "diagram",
+        "living-preview",
+        "thumbnail"
+      ]
+    },
+    "alt": {
+      "type": "object",
+      "properties": {
+        "ru": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "ru",
+        "en"
+      ],
+      "additionalProperties": false
+    },
+    "caption": {
+      "type": "object",
+      "properties": {
+        "ru": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "en": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "ru",
+        "en"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "additionalProperties": false
+}
