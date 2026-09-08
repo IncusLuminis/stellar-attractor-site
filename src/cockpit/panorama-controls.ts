@@ -19,7 +19,6 @@ export interface PanoramaControlsOptions {
   /** Enter/Space on the focused hotspot is handled by the hotspot itself; this
    *  is the fallback "activate the astronav terminal" when the bare area has focus. */
   onActivatePrimary?: () => void;
-  onReturn?: () => void;
 }
 
 export class PanoramaControls {
@@ -69,16 +68,10 @@ export class PanoramaControls {
         e.preventDefault();
         this.step(1);
         break;
-      case "Escape": {
-        // Do not steal Escape from a focused text field, if any are added later.
-        const t = e.target as HTMLElement | null;
-        if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-        if (ctrl.sm.canReturn() || ctrl.sm.is("SYSTEM_ACTIVE")) {
-          e.preventDefault();
-          this.opts.onReturn?.();
-        }
-        break;
-      }
+      // Escape -> return is handled at document level by DesktopShell, because
+      // once the SystemOverlay opens, focus moves to the RETURN button which is
+      // a sibling of the cockpit interaction area, not a descendant, so a keydown
+      // there never reaches this scoped listener (Spec §20, §35).
       case "Enter":
       case " ":
       case "Spacebar": {
