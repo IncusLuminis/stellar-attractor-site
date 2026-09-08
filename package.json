@@ -1,0 +1,20 @@
+{
+  "name": "stellar-attractor-cockpit-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 0 spike — panoramic Base #32 cockpit navigation prototype (vanilla TypeScript, no framework).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.3.6",
+    "vitest": "^3.2.4"
+  }
+}
