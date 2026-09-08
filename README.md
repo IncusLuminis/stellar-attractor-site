@@ -1,137 +1,217 @@
-# Stellar Attractor — Cockpit Interaction Prototype (Phase 0 spike)
+# Stellar Attractor — site
 
-> Isolated technical spike. It answers one question:
-> **does navigating by physically looking around a large spacecraft cockpit feel
-> natural, understandable and controllable in a browser?**
+Interactive-universe site for the Stellar Attractor project. Astro application
+shell with a framework-independent, vanilla-TypeScript cockpit / HUD engine
+mounted as client islands.
 
-This is **not** the production site. It has placeholder artwork drawn in code, no
-entity data, no CMS, no Local Bubble, no Astronavigation content. Phase 1 wraps
-the reusable modules under `src/cockpit/` in an Astro app; the `index.html` /
-`src/main.ts` / `src/style.css` harness here is throwaway.
+Source of truth for scope and decisions:
 
-Source of truth: `docs/architecture/Cockpit Interaction Prototype Specification.md`
-and `docs/architecture/Implementation Plan v0.1.md` §5, §11.
+- `docs/architecture/Implementation Plan v0.1.md` (§2 stack, §3 repo layout,
+  §10 local development)
+- `docs/architecture/Technical Architecture & MVP Implementation Plan v0.1 .md`
+  (§4 framework, §5 shell, §37 code splitting, §44 repo structure)
+- `docs/architecture/Cockpit Interaction Prototype Specification.md` (Phase 0)
+- `ROADMAP.md` — phase sequencing and the Epic/Story backlog
+
+> **Status: Phase 1 skeleton.** This is the Astro scaffold only (issue #15).
+> Routing, entity data, i18n, schemas, the Astronav stub, the HUD library and
+> the production cockpit land in later Phase 1–8 stories. The `/` route runs the
+> Phase 0 cockpit prototype with placeholder art.
 
 ---
 
 ## How to run
 
-Requires Node ≥ 20.
+Requires Node ≥ 20 (developed on Node 22).
 
 ```bash
 npm install
-npm run dev      # Vite dev server → http://localhost:5173
-npm run build    # tsc --noEmit + vite build → dist/
-npm run preview  # serve the production build locally
-npm test         # Vitest — camera-controller bounds / threshold / state-machine
+npm run dev        # astro dev  → http://localhost:4321
+npm run build      # astro build → dist/  (runs the prebuild pipeline first)
+npm run preview    # astro preview — serve the production build
+npm test           # vitest run — cockpit + framework-independence unit tests
+npm run typecheck  # astro check — strict TS diagnostics over .astro / .ts / .tsx
 ```
 
-`npm test` runs 35 unit tests (`tests/`) covering camera bounds math at the four
-Spec §25 viewport sizes, the click-vs-drag threshold decision, every state-machine
-transition, the focus/return tweens (deterministic fake clock), and resize
-hardening.
+### Build pipeline
 
-### Shell override (for QA / the §37 usability test)
+`npm run build` runs an npm `prebuild` hook first:
 
-`?shell=mobile` or `?shell=desktop` forces a shell regardless of window width —
-useful on hardware whose width does not naturally cross the breakpoint.
+```
+prebuild ─┬─ validate:entities   → node scripts/validate-entities.ts   (placeholder — #18)
+          └─ build:search-index  → node scripts/build-search-index.ts  (placeholder — Phase 4 / #38)
+```
 
----
+Both scripts are **placeholders that exit 0** with a "not implemented" message.
+The hook wiring exists so #18 and #38 only fill in the script bodies — the build
+already fails if either script exits non-zero. Implementation Plan §10.
 
-## Interaction controls
+### `npm test`
 
-### Desktop cockpit
-
-| Input | Action |
-|---|---|
-| Drag (pointer) | Look left / right. Stops at scene boundaries. |
-| `◀` `▶` buttons | Pan one increment, animated. Accessible non-drag alternative. |
-| `←` / `→` | Pan left / right (only while the cockpit area is focused). |
-| Click / `Enter` / `Space` on the **ASTRONAVIGATION** terminal | Focus the terminal — the camera animates toward it, then the system overlay opens. |
-| `RETURN — BACK TO MAIN OPERATIONS` button, or `Esc` | Return the camera to the cockpit overview. |
-| First-use hint | "DRAG TO LOOK AROUND" — dismissed on the first drag, on `×`, or on opening a terminal. |
-
-A small one-time nudge on load hints that the scene moves (skipped under reduced motion).
-
-### Mobile (below ~760 px) — BASE #32 Remote Terminal
-
-A distinct shell, not a shrunk cockpit. `[ ASTRONAVIGATION ]` opens the same
-placeholder system content with no camera animation; `RETURN` restores the terminal.
-
-### Reduced motion
-
-Under `prefers-reduced-motion: reduce`: the load nudge is skipped, camera tweens
-collapse to an instant cut, and decorative HUD animation stops. Every navigation
-path still works.
+Runs the Phase 0 cockpit unit tests (`tests/` — camera bounds math at the four
+Spec §25 viewport sizes, click-vs-drag threshold, every state-machine
+transition, focus/return tweens on a fake clock, resize hardening) plus
+`tests/cockpit-framework-independence.test.ts` (see below). Entity / relation
+tests arrive with #17 / #18.
 
 ---
 
-## Architecture summary
+## Architecture
+
+### Astro shell + islands
+
+Astro renders every route to static HTML and ships **zero JavaScript by
+default**. Interactivity is opt-in per component via `client:*` directives
+(`client:load` / `client:idle` / `client:visible`) — the "islands" model
+(Implementation Plan §2.1, Technical Architecture §37).
+
+- `src/layouts/BaseLayout.astro` — the shared document shell. Pulls design
+  tokens from `shared/style/` (see below). No JS.
+- `src/pages/index.astro` — `/`. Renders server-side, then mounts the cockpit as
+  a single island (`<CockpitIsland client:idle />`).
+- `src/pages/placeholder.astro` — a plain content route with **no island**, kept
+  as a scaffold smoke test: it ships no client JS and loads with no console
+  errors. Deleted once real routes (#16 / #19) exist.
+
+`@astrojs/preact` is the only UI-framework integration, and it is deliberately
+minimal: it exists purely to make `client:*` directives usable. The Preact layer
+is `src/components/CockpitIsland.tsx` — a ~20-line mount/unmount shim. All camera,
+scene, hotspot and shell logic is plain TypeScript with no framework coupling
+(Implementation Plan §2.2), which also keeps this codebase conceptually
+compatible with `localbubble-site` (vanilla TS + Vite) for the eventual Astronav
+integration.
+
+### Code-splitting boundaries
+
+Major systems are independently loadable (Technical Architecture §37). The
+current and planned chunk boundaries:
+
+| Boundary | Loads on | Status |
+|---|---|---|
+| **shell** (Astro HTML + tokens CSS) | every route | zero JS |
+| **preact runtime** | any route with an island | ~4 KB, shared |
+| **cockpit** (`src/cockpit-mount.ts` → `src/cockpit/*`, `src/shells/*`, `src/system/*`, `src/styles/cockpit.css`) | `/` only, `client:idle` | active |
+| **core** (`src/core/*` — entities, i18n, search, navigation) | shell-level, shared | stub (#17, #19) |
+| per-system: **astronav** / **fleet** / **personnel** / **base32** / **missions** / **database** (`src/systems/*`) | each system route / on focus | stubs (Phase 2+) |
+
+Astronav will be the heaviest bundle and must stay outside the initial
+application path (Technical Architecture §36–37) — it is lazy-loaded behind the
+`AstronavAdapter` interface (Implementation Plan §8), added in #19.
+
+### `src/cockpit/` is framework-independent — enforced
+
+The modules under `src/cockpit/` are plain vanilla TS that must survive the
+Phase 0 spike into production unchanged (Implementation Plan §2.2). They must not
+import `astro:*` virtual modules, the `astro` runtime, `@astrojs/*`, `.astro`
+components, or Preact/JSX.
+
+`tests/cockpit-framework-independence.test.ts` scans every file under
+`src/cockpit/` and fails the test run if any such import appears, so a later
+story cannot quietly couple the engine to the framework.
+
+`src/cockpit-mount.ts` (the folded-in harness, see below) is *app* glue, not part
+of that directory — but it is also framework-free vanilla TS.
+
+### Design tokens
+
+`shared/style/` (generated from `shared/style/SA_styles.json` by
+`shared/tools/gen_SA_styles.py`) is the single token source and is **not
+forked** (Implementation Plan §1 decision 8). `src/styles/tokens.css` re-exports
+`shared/style/stellar-attractor.css` via a plain CSS `@import` so the app has a
+stable in-repo import path; `BaseLayout.astro` and `src/styles/cockpit.css` both
+import that. When the HUD library lands (Phase 2), `src/hud/hud.css` imports the
+same file. If a copy step is ever preferred over the relative import, it must be
+wired into `prebuild` and documented here.
+
+---
+
+## Repository layout
+
+Follows Implementation Plan §3; Astro conventions win where they conflict
+(Technical Architecture §44).
 
 ```
 src/
-├── cockpit/                 framework-independent, app-agnostic — survives into production
-│   ├── camera-controller.ts position / scale / bounds / drag / transitions / focus targets
-│   │                        + pure helpers: computeBounds, clampCamera, resolveDragIntent, easeInOutCubic
-│   ├── state-machine.ts     BOOT → OVERVIEW → MANUAL_PAN → FOCUSING → SYSTEM_ACTIVE → RETURNING
-│   ├── scene.ts             layered SVG scene, CSS-transform application, Pointer Events, ResizeObserver
-│   ├── hotspots.ts          SVG hotspot geometry in 3200×1600 space, a11y, visual states
-│   ├── discovery.ts         first-use hint, one-time nudge, dismissal
-│   ├── panorama-controls.ts ◀ ▶ buttons + keyboard, scoped to the cockpit area
-│   └── config.ts            CockpitConfig types + runtime validator
-├── system/
-│   ├── system-content.ts    shared placeholder panel (desktop overlay AND mobile both use it)
-│   └── system-overlay.ts    desktop HUD frame + RETURN
-├── shells/
-│   ├── desktop-shell.ts     wires the cockpit modules; enforces the Spec §34 flow
-│   └── mobile-shell.ts      BASE #32 Remote Terminal
-└── main.ts                  throwaway harness: load config, pick shell, swap on breakpoint cross
+├── pages/         Astro routes (index.astro, placeholder.astro; entity routes → #19)
+├── layouts/       BaseLayout.astro — shared document shell
+├── components/    shared non-HUD UI + CockpitIsland.tsx (the island shim)
+├── shells/        DesktopShell / MobileShell — vanilla TS (Astro shell components → Phase 3)
+├── systems/       one folder per primary system — stubs (astronav is stub-only for the MVP)
+├── cockpit/       vanilla TS engine — NO framework imports (enforced by a test)
+├── system/        Phase 0 shared SystemOverlay / SystemContent (moves under components/ in Phase 2)
+├── hud/           SVG/CSS HUD component library — Phase 2
+├── core/          entities · i18n · search · navigation · clearance — Phase 1/4
+├── media/         media components — Phase 5+
+├── content/       Astro content collections + Zod schemas — #16
+├── styles/        tokens.css (re-export of shared/style) + cockpit.css
+└── cockpit-mount.ts   folded-in Phase 0 harness entry (was src/main.ts)
 
-config/cockpit.json          standalone camera configuration (data, not code) — see below
+data/       universe entity JSON — #16 / #22
+schemas/    JSON Schema mirrors of the Zod schemas — #16
+config/     cockpit.json — standalone camera configuration (Spec §40.3)
+scripts/    validate-entities.ts · build-search-index.ts (placeholders)
+public/     static assets; public/media/ for local dev media
+shared/style/   existing SA design tokens — do not fork
 ```
 
-**Responsibility boundary (Spec §33–34).** The camera controller owns position,
-scale, bounds, drag and transitions, and takes only a target *name*
-(`camera.focus("astronav")`). It never fetches content. The flow is:
+Empty scaffold directories carry a short `README.md` describing what lands there
+and in which story.
 
-```
-hotspot activate → navigation request → camera.focus("astronav")
-                 → transition complete → setActiveSystem("astronav")  [ open overlay ]
-```
+---
 
-**Transform model.** The scene is a fixed `3200 × 1600` element with
-`transform-origin: 0 0` and
-`transform: translate3d(var(--camera-x), var(--camera-y), 0) scale(var(--camera-scale))`.
-The document never scrolls horizontally. Pointer-move updates only write the
-transform — no layout reads.
+## Phase 0 harness — now folded in
 
-**Bounds (`config.camera.bounds.model: "cover"`).** Computed each frame from
-scene size, viewport size and current scale — never hardcoded per viewport, and
-recomputed on resize. `minHorizontalOverflowRatio` keeps the scene at least 1.35×
-wider than the viewport so horizontal panning always stays useful;
-`verticalPanRatio` allows a small vertical band.
+The Phase 0 cockpit spike ran on a bare Vite harness: root `index.html` +
+`src/main.ts` + `src/style.css` + `vite.config.ts`. That harness is gone:
 
-**Standalone camera config — `config/cockpit.json`** (Spec §40.3): scene size,
-overview pose, the Astronav focus target, the camera-bounds model parameters, and
-all animation timings. Validated by `src/cockpit/config.ts` on load. A JSON Schema
-is at `config/cockpit.schema.json`.
+| Phase 0 (throwaway)      | Now                                                        |
+|--------------------------|-----------------------------------------------------------|
+| `index.html`             | `src/pages/index.astro` (+ `src/layouts/BaseLayout.astro`) |
+| `src/main.ts`            | `src/cockpit-mount.ts` — same logic, exported as `mountCockpit(el)` with a teardown handle, called by `CockpitIsland.tsx` |
+| `vite.config.ts`         | `astro.config.mjs` (Astro owns Vite; `build.sourcemap` carried over) |
+| `src/style.css`          | `src/styles/cockpit.css` — its local `:root` token block removed; tokens now come from `shared/style/` unforked |
+| `tsc --noEmit` in `build`| `npm run typecheck` → `astro check` |
+
+`config/cockpit.json`, `config/cockpit.schema.json` and all of `src/cockpit/`,
+`src/shells/`, `src/system/`, `tests/` are unchanged from Phase 0.
 
 ---
 
 ## Known limitations
 
-- **Placeholder art only.** SVG shapes / gradients / labelled rectangles drawn in
-  code. Production cockpit artwork is Phase 3 (Media_keeper).
-- **One real hotspot.** Only the ASTRONAVIGATION terminal is interactive; the
-  other five terminals are decorative. The mobile `[ DATABASE ]` button opens a
-  generic stub panel.
-- **Inertia is minimal** by design — the cockpit should feel heavy (Spec §12).
-- **Vertical pan is a narrow band.** Primary movement is horizontal (Spec §8).
-- **No cross-session persistence** of the hint (Spec §22 — not required for the spike).
-- **Tab-visibility and animation.** Camera tweens use `requestAnimationFrame`;
-  Chrome pauses rAF for a fully hidden tab, so a transition started and then
-  backgrounded resumes when the tab returns to the foreground. `apply()` clamps
-  every frame, so this self-heals with no stuck or out-of-bounds state.
-- **Design tokens are inlined** in `src/style.css` rather than generated from
-  `shared/style/` — the spike has no token build step yet (Implementation Plan §1.8).
-- Findings from the §37 usability test are pending — see `docs/phase-0-findings.md`.
+- **Skeleton only.** No routing, entity data, content collections, i18n,
+  schemas, Astronav stub, HUD library or production cockpit yet — those are
+  Phase 1–8 stories (`ROADMAP.md`). `/` shows the Phase 0 prototype with
+  placeholder SVG art.
+- **`src/system/` vs `src/systems/`.** Phase 0's shared SystemOverlay /
+  SystemContent live in `src/system/` (singular). Implementation Plan §3's
+  `src/systems/` (plural) is for per-system folders and currently only holds a
+  README. The singular folder moves under `src/components/` when the visual
+  system is built (Phase 2).
+- **`vite` is still a direct devDependency** — only as the peer that `vitest`
+  needs. Astro brings its own Vite; there is no project `vite.config.ts`.
+- **No deployment config by design** (Implementation Plan §1 decision 7): no
+  `wrangler.*`, no adapter, no Pages config, no deploy workflow. Local
+  `astro dev` / `astro preview` only. A CI workflow that only runs
+  install + build + test is allowed and is authored in #18.
+- Phase 0 findings from the §37 usability test are still pending — see
+  `docs/phase-0-findings.md`. This story does not gate on that.
+
+---
+
+## Interaction controls (the `/` cockpit route)
+
+Unchanged from Phase 0.
+
+| Input | Action |
+|---|---|
+| Drag (pointer) | Look left / right; stops at scene boundaries |
+| `◀` `▶` buttons | Pan one animated increment (non-drag alternative) |
+| `←` / `→` | Pan (only while the cockpit area is focused) |
+| Click / `Enter` / `Space` on **ASTRONAVIGATION** | Camera focuses the terminal, then the system overlay opens |
+| `RETURN` button or `Esc` | Return the camera to the cockpit overview |
+| `?shell=mobile` / `?shell=desktop` | Force a shell regardless of viewport width (QA / usability test) |
+
+Below ~760 px the mobile **BASE #32 REMOTE TERMINAL** shell renders instead — a
+distinct shell, not a shrunk cockpit. Under `prefers-reduced-motion: reduce` the
+load nudge is skipped and camera tweens collapse to an instant cut.
