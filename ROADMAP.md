@@ -20,10 +20,11 @@ Phase 5 #43, Phase 6 #50, Phase 7 #55, Phase 8 #61.
 ## Status legend
 
 - **Groomed to Ready** — Stories written with acceptance criteria + Size, ready to pick up.
+  Phases 0 and 1 are here.
 - **Epic + coarse Stories** — captured; full grooming happens after the Phase 0
   findings note lands, because the spike's proceed/revise outcome feeds every
-  cockpit-dependent Story.
-- **Deferred** — captured, deliberately not groomed now.
+  **cockpit-dependent** Story (Phase 3 and downstream). Phases 2–8 are here.
+- **Deferred** — captured, deliberately not groomed now (Phase 7).
 
 ---
 
@@ -51,24 +52,52 @@ Priority: **High** (Implementation Plan §13 — "the immediate next work").
 | #12 | Responsive-desktop resize hardening + interaction edge cases | M |
 | #13 | Prototype README, standalone camera configuration, engineering findings note (proceed / revise) | M |
 
-All Phase 0 issues are at Status `Ready` on the board. Phases 1–8 Epics and
-their Stories are at `Backlog`.
+Phase 0 status: prototype built (PR #68, Coder → Validator → approved, verified
+live in a browser; not yet merged). The human §37 usability test (#13) and the
+proceed/revise gate on Epic #1 are still open.
+
+All Phase 0 issues are at Status `Ready`. Phase 1 is groomed to `Ready`
+(see below). Phases 2–8 Epics and Stories remain at `Backlog`, coarse.
 
 ---
 
-## Phase 1 — Application core — EPIC + COARSE STORIES
+## Phase 1 — Application core — GROOMED TO READY (2026-09-08)
 
 **Outcome:** any seed entity opens by URL with correct content and working
-relation links, in both locales.
+relation links, in both locales; `astro build` fails on invalid entity data,
+locally and in CI.
 
-- Astro project skeleton + local dev/build/preview scripts (validation + search-index as build pre-steps)
-- Entity schema: Zod schemas + Astro content collections per entity type; JSON Schema mirrors in `/schemas`
-- Entity + relation resolver
-- CI entity-validation script (missing id, dup slug, dangling relation, missing ru/en, bad media ref) wired into `astro build` + a GitHub Actions check
-- Routing + route↔system map + deep-link focus-intent contract; direct entity URLs render full content without the cockpit
-- i18n: `LocalizedText`, client locale store, `?lang=` override, `hreflang` alternates; language switch never changes selected entity / camera / scroll / system state
-- Astronavigation MVP **stub** + `AstronavAdapter` typed interface (placeholder panel, accepts deep-link focus intent, satisfies focus→activate→return loop) — also feeds Phase 3
-- Phase 1 seed entity set: Zane, Illar Arden, Base #32, Stellar Nomad, Fomalhaut, Exodus — both locales, cross-class relations
+Groomed ahead of the Phase 0 findings note deliberately: the Phase 0 gate governs
+the *cockpit interaction model* (Phase 3), which is orthogonal to the site core.
+The pending-findings note now sits only on Epic #29 (Phase 3) and downstream.
+
+| Issue | Story | Size |
+|---|---|---|
+| #15 | Scaffold the Astro project + local dev/build/preview scripts — **root prerequisite** | M |
+| #16 | Define Zod entity schemas + Astro content collections + JSON Schema mirrors | M |
+| #17 | Build the entity + relation resolver | M |
+| #18 | CI entity-validation script wired into build + GitHub Actions | M |
+| #19 | Routing + route↔system map + deep-link focus-intent contract (+ prerendered entity docs, 404) | L |
+| #20 | i18n: LocalizedText, locale store, `?lang=` override, hreflang, state-preserving switch | M |
+| #21 | Astronavigation MVP stub + `AstronavAdapter` typed interface | M |
+| #22 | Author the Phase 1 seed entity set in both locales with cross-class relations | M |
+
+**Dependency map**
+- **Critical path:** #15 → #16 → #17 → #19 → #21
+- **#15 (Astro skeleton) is the root** — must merge before any other Phase 1 Story starts.
+- After #16, run in parallel (disjoint files): **#18** (`scripts/`, `.github/workflows/`),
+  **#20** (`src/core/i18n/`), **#22** (`data/`, content-only).
+- **#17** (`src/core/entities/`) parallel-safe with #18/#20/#22; **#19** serialises after #17.
+- **#19 and #20 share the base page layout file** — coordinate on that one file.
+- **#21** serialises after #19 (consumes the focus-intent contract).
+
+**Needs UI_UX_Designer input before Coder pickup:** #19 (entity-route document
+shell + 404 page — minimal semantic wireframe), #21 (Astronav stub panel layout).
+Minor: #20 (RUS/ENG switch placement).
+
+**Open questions flagged to the human:** default locale RU vs EN (#20); source and
+owner of seed-entity canon facts (#22); GitHub Actions workflow ownership,
+Coder vs DevOps (#18).
 
 ## Phase 2 — Visual system — EPIC + COARSE STORIES
 
