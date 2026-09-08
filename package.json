@@ -1,19 +1,27 @@
 {
-  "name": "stellar-attractor-cockpit-prototype",
+  "name": "stellar-attractor-site",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Phase 0 spike — panoramic Base #32 cockpit navigation prototype (vanilla TypeScript, no framework).",
+  "description": "Stellar Attractor — interactive universe site. Astro application shell + framework-independent vanilla-TypeScript cockpit/HUD, mounted as islands.",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "build": "astro build",
+    "prebuild": "npm run validate:entities && npm run build:search-index",
+    "preview": "astro preview",
+    "validate:entities": "node scripts/validate-entities.ts",
+    "build:search-index": "node scripts/build-search-index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "astro check"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/preact": "^6.0.5",
+    "@types/node": "^22.10.2",
+    "astro": "^7.3.1",
     "jsdom": "^25.0.1",
+    "preact": "^10.29.8",
     "typescript": "^5.7.2",
     "vite": "^6.3.6",
     "vitest": "^3.2.4"
