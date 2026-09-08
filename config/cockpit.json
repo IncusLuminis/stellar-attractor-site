@@ -1,0 +1,63 @@
+{
+  "$schema": "./cockpit.schema.json",
+  "version": "0.1.0",
+  "description": "Standalone camera configuration for the Stellar Attractor cockpit prototype (Cockpit Interaction Prototype Specification §40.3). Data only — no code constants. Consumed by src/cockpit/camera-controller.ts via src/cockpit/config.ts.",
+
+  "scene": {
+    "width": 3200,
+    "height": 1600,
+    "viewBox": "0 0 3200 1600"
+  },
+
+  "camera": {
+    "overview": {
+      "x": 0,
+      "y": 0,
+      "scale": 1
+    },
+
+    "targets": {
+      "astronav": {
+        "x": -1950,
+        "y": -630,
+        "scale": 1.5
+      }
+    },
+
+    "bounds": {
+      "model": "cover",
+      "comment": "Derived at runtime from scene size, viewport size and current scale — never hardcoded per viewport (Spec §9). 'minHorizontalOverflowRatio' keeps the scene at least this many times wider than the viewport so horizontal panning always stays useful (Spec §6, §25). 'verticalPanRatio' is the half-band of vertical travel expressed as a fraction of viewport height; 0 disables vertical pan.",
+      "minHorizontalOverflowRatio": 1.35,
+      "verticalPanRatio": 0.14,
+      "maxScale": 2.2
+    }
+  },
+
+  "animation": {
+    "comment": "Milliseconds. Focus/return easing is a controlled mechanical curve — no overshoot, bounce or spring (Spec §14). Under prefers-reduced-motion all tweens collapse to 'reducedMotionMs' and the nudge is skipped (Spec §28).",
+    "focusMs": 620,
+    "returnMs": 560,
+    "easing": "cubic-bezier(0.4, 0.0, 0.2, 1)",
+    "arrowStepPx": 460,
+    "arrowStepMs": 340,
+    "nudgePx": 26,
+    "nudgeMs": 900,
+    "reducedMotionMs": 0
+  },
+
+  "interaction": {
+    "comment": "Pointer/keyboard tuning (Spec §11, §12, §23).",
+    "dragThresholdPx": 5,
+    "inertia": {
+      "enabled": true,
+      "friction": 0.86,
+      "minVelocity": 0.04,
+      "maxDurationMs": 650
+    }
+  },
+
+  "responsive": {
+    "comment": "Behavioural breakpoint, not a device name (Implementation Plan §14, Technical Architecture §35). At or below this CSS width the app renders the RemoteTerminal shell instead of the cockpit (Spec §26).",
+    "compactBreakpointPx": 760
+  }
+}

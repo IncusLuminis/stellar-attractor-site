@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cockpit prototype camera configuration",
+  "type": "object",
+  "required": ["scene", "camera", "animation", "interaction", "responsive"],
+  "additionalProperties": true,
+  "definitions": {
+    "cameraPose": {
+      "type": "object",
+      "required": ["x", "y", "scale"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "scale": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  },
+  "properties": {
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "scene": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 },
+        "viewBox": { "type": "string" }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "required": ["overview", "targets", "bounds"],
+      "properties": {
+        "overview": { "$ref": "#/definitions/cameraPose" },
+        "targets": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/cameraPose" }
+        },
+        "bounds": {
+          "type": "object",
+          "required": ["minHorizontalOverflowRatio", "verticalPanRatio", "maxScale"],
+          "properties": {
+            "model": { "type": "string" },
+            "minHorizontalOverflowRatio": { "type": "number", "minimum": 1 },
+            "verticalPanRatio": { "type": "number", "minimum": 0 },
+            "maxScale": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        }
+      }
+    },
+    "animation": {
+      "type": "object",
+      "required": ["focusMs", "returnMs", "easing", "arrowStepPx", "arrowStepMs", "nudgePx", "nudgeMs", "reducedMotionMs"],
+      "properties": {
+        "focusMs": { "type": "number", "minimum": 0 },
+        "returnMs": { "type": "number", "minimum": 0 },
+        "easing": { "type": "string" },
+        "arrowStepPx": { "type": "number", "minimum": 0 },
+        "arrowStepMs": { "type": "number", "minimum": 0 },
+        "nudgePx": { "type": "number", "minimum": 0 },
+        "nudgeMs": { "type": "number", "minimum": 0 },
+        "reducedMotionMs": { "type": "number", "minimum": 0 }
+      }
+    },
+    "interaction": {
+      "type": "object",
+      "required": ["dragThresholdPx"],
+      "properties": {
+        "dragThresholdPx": { "type": "number", "minimum": 1 },
+        "inertia": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "friction": { "type": "number" },
+            "minVelocity": { "type": "number" },
+            "maxDurationMs": { "type": "number" }
+          }
+        }
+      }
+    },
+    "responsive": {
+      "type": "object",
+      "required": ["compactBreakpointPx"],
+      "properties": {
+        "compactBreakpointPx": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  }
+}
