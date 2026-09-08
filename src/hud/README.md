@@ -18,10 +18,13 @@ Technical Architecture §19–20. Built across Phase 2 (#24–#28).
 
 ```
 shared/style/SA_styles.json          <- source of truth (edit here)
-  │  shared/style/hud_style_tokens.py  (generator: JSON -> CSS + Python)
+  │  shared/tools/gen_SA_styles.py     (THE generator: JSON -> CSS + Python)
   ▼
-shared/style/stellar-attractor.css   <- GENERATED. "Auto-generated. Do not edit
-  │                                      manually." Regenerate, never patch.
+shared/style/stellar-attractor.css   <- GENERATED output. "Auto-generated. Do
+  │  shared/style/hud_style_tokens.py     not edit manually." Both are output of
+  │                                       gen_SA_styles.py — regenerate, never
+  │                                       patch (hud_style_tokens.py is NOT a
+  │                                       generator despite the name).
   ▼
 src/styles/tokens.css                <- #15 in-app re-export:
   │                                      @import "../../shared/style/stellar-attractor.css"
@@ -39,9 +42,10 @@ src/layouts/BaseLayout.astro         <- imports hud.css globally (:root scope)
   `font-family`.
 
 If the HUD genuinely needs a colour the SA palette lacks, add it to
-`shared/style/SA_styles.json`, regenerate `stellar-attractor.css` and
-`hud_style_tokens.py` via `shared/style/hud_style_tokens.py`, and record the
-addition in §2 below — **do not** hardcode it in `hud.css`.
+`shared/style/SA_styles.json`, regenerate `stellar-attractor.css` **and**
+`hud_style_tokens.py` by running `shared/tools/gen_SA_styles.py`, and record the
+addition in §2 below — **do not** hardcode it in `hud.css`. (The repo-root
+`README.md` and `src/styles/tokens.css` cite the same generator.)
 
 > #24 added **no** new palette values. Every `--hud-*` colour role maps onto a
 > token that already existed in `SA_styles.json`.
@@ -166,12 +170,15 @@ your own selector) and let the media block stop it. Working example shipped in
 
 @media (prefers-reduced-motion: reduce) {
   .hud-animated,
-  .hud-pulse { animation: none; opacity: var(--hud-opacity-frame); }
+  .hud-pulse { animation: none; transition: none; }
 }
 ```
 
-The element settles on a legible resting state — motion is removed, information
-is not. #25/#27 extend the media block with component-specific rules.
+The generic hook resets **motion only** — with the animation removed `.hud-pulse`
+reverts to its default opacity and stays legible. A component whose animation
+carried real information (a transform that reveals state, say) provides its own
+resting end-state inside this media block — that is #25/#27's job, not a value
+baked into the shared hook.
 
 ---
 
@@ -181,10 +188,12 @@ Audit of token-equivalent literals currently hardcoded in the Phase 0 styling,
 for #25 / #26 to migrate. **#24 does not migrate these** (PO: "the known Phase 0
 style refactor" belongs with the component work) — it only catalogues them.
 
-`src/system/system-overlay.ts` and the other `src/system/*` / `src/cockpit/*`
-modules carry **no inline style literals** — they only set layout classes and the
-`--camera-*` transform vars in `src/cockpit/scene.ts`. So the whole catalogue is
-in `src/styles/cockpit.css`.
+`src/system/system-overlay.ts` and the rest of `src/system/*` carry **no inline
+style literals** — they set layout classes only. `src/cockpit/scene.ts` is the
+one exception: it builds the backdrop SVG with ~20 hard-coded hex colours — but
+that is **placeholder programmer-art**, replaced by real cockpit artwork before
+Phase 2 ships, so it is deliberately excluded from tokenisation (see §4c). The
+migratable catalogue is therefore all in `src/styles/cockpit.css`.
 
 ### 4a. Exact token matches — safe mechanical swap (do in #25/#26)
 
@@ -205,10 +214,13 @@ in `src/styles/cockpit.css`.
 | `.panorama-control:hover` background | `rgba(34, 199, 243, 0.24)` | `--sa-colors-cyan-deep` `#22c7f3` = `rgb(34,199,243)` | Same → interaction-tint scale. |
 | `.system-overlay-frame` box-shadow | `rgba(34, 199, 243, 0.35)` | `--sa-colors-cyan-deep` | Glow colour → `--hud-glow` (currently cyan-soft); reconcile in #25. |
 | frame `drop-shadow` glows in shared CSS `.sa-frame-outer` / `.sa-accent` | `rgba(90,240,255, 0.45–0.55)` | `--sa-colors-cyan-soft` | Same family — `--hud-glow` once #25 restyles frames. |
-| `.remote-terminal-section` / `.remote-terminal-btn` borders | `rgba(34, 199, 243, 0.28)` | `--sa-colors-cyan-deep` at α | interaction/border-tint scale. |
+| `.remote-terminal-section` border-top | `rgba(34, 199, 243, 0.28)` | `--sa-colors-cyan-deep` at α | interaction/border-tint scale. (`.remote-terminal-btn` already uses `var(--sa-colors-cyan-deep)`.) |
 
 ### 4c. Stays cockpit-specific — do NOT migrate
 
+- **`src/cockpit/scene.ts` backdrop SVG** (~20 hex literals: panel `tint`s,
+  gradient stops, grid/console strokes, star fills) — **placeholder art**, not
+  design-system colour. Real cockpit artwork replaces it; do not tokenise.
 - `@keyframes hud-scan` + `.hud-scanline` — a HUD ambient primitive; **#25**
   should lift it into `hud.css` as `HudScanner`, but the timing (`6s`) is a
   cockpit tuning value, not a token.

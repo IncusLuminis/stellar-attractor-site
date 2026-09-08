@@ -3,15 +3,12 @@
 // Stays deliberately thin for the Phase 1 skeleton — real HUD layer, locale
 // provider and navigation controller land in later phases.
 //
-// Design tokens are pulled straight from shared/style/ with no fork
-// (Implementation Plan §1 decision 8). This is CSS custom properties only:
-// it attaches no rules and ships no JavaScript.
-import "../styles/tokens.css";
-// HUD token & primitive layer (#24): maps stable `--hud-*` role names onto the
-// SA palette for the Phase 2 component library (#25/#26/#27). `--hud-*` custom
-// properties + a `:root` reduced-motion scaffold + a few token hooks — no
-// components. hud.css re-imports tokens.css, so the line above is redundant but
-// kept explicit for the skeleton's documented intent.
+// HUD token layer (#24). hud.css @imports the shared design-token re-export
+// (src/styles/tokens.css -> shared/style/stellar-attractor.css, no fork —
+// Implementation Plan §1 decision 8) and layers stable `--hud-*` role names
+// plus a `:root` reduced-motion scaffold on top. CSS custom properties + a few
+// token hooks only: no rules of consequence, no JavaScript, no components
+// (those are #25/#26). Importing hud.css here also pulls in tokens.css.
 import "../hud/hud.css";
 
 interface Props {
