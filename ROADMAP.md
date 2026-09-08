@@ -52,12 +52,16 @@ Priority: **High** (Implementation Plan §13 — "the immediate next work").
 | #12 | Responsive-desktop resize hardening + interaction edge cases | M |
 | #13 | Prototype README, standalone camera configuration, engineering findings note (proceed / revise) | M |
 
-Phase 0 status: prototype built (PR #68, Coder → Validator → approved, verified
-live in a browser; not yet merged). The human §37 usability test (#13) and the
-proceed/revise gate on Epic #1 are still open.
+Phase 0 status: **done** — PRs #68 (cockpit prototype) and #70 (Astro skeleton /
+#15) merged to `main` 2026-09-08; the human confirmed the direction ("движемся
+правильно"), which is the **proceed** decision on the Phase 0 gate. Epic #1 and
+Stories #2–#12 + #15 are `Done`. Only #13 stays open — the engineering findings
+note / formal §37 write-up, a documentation follow-up that blocks nothing.
 
-All Phase 0 issues are at Status `Ready`. Phase 1 is groomed to `Ready`
-(see below). Phases 2–8 Epics and Stories remain at `Backlog`, coarse.
+Phase 1 (#14–#22) and Phase 2 (#23–#28) are both groomed to `Ready`. Phase 1
+is now in flight (#16 schemas in progress with a Coder). Phases 3–8 remain
+coarse at `Backlog`; the pending-findings note is kept only on Epic #29 (Phase 3)
+and downstream.
 
 ---
 
@@ -109,15 +113,44 @@ entities); dispatch once #16 (schema) is merged. Canon source:
 
 **Still open:** GitHub Actions workflow ownership, Coder vs DevOps (#18).
 
-## Phase 2 — Visual system — EPIC + COARSE STORIES
+## Phase 2 — Visual system — GROOMED TO READY (2026-09-08)
 
-**Outcome:** a documented visual grammar exists before many screens are built.
+**Outcome:** a documented visual grammar + a built-once HUD/UI component library
+exist, styled entirely from the shared `--sa-*` token system, with consistent
+motion conventions and `prefers-reduced-motion` support throughout — so Phases
+3–6 screens can be built without inventing CSS.
 
-- Wire HUD design tokens from `shared/style/stellar-attractor.css` into `hud.css`
-- SVG HUD component library (HudFrame, HudCorners, HudReticle, HudScanner, HudStatus, HudTelemetry, HudBracket, HudDivider, HudTarget, HudAlert)
-- Shared non-HUD UI: buttons, panels, alerts, language selector
-- Terminal-transition + animation conventions + CSS-first animation primitives (all honour `prefers-reduced-motion`)
-- Typography + colour scale documented as visual grammar
+Parallel workstream (Implementation Plan §46 "Workstream C — HUD"), independent
+of Phase 1's data layer. Builds on what #15 merged: `src/hud/` (README only),
+`src/styles/tokens.css` (`@import` of `shared/style/stellar-attractor.css`).
+Token source of truth is `shared/style/SA_styles.json` — the CSS is generated,
+never hand-edited.
+
+| Issue | Story | Size |
+|---|---|---|
+| #24 | Wire HUD design tokens from `shared/style` into `src/hud/hud.css` (+ role→token map) | S |
+| #25 | Build the SVG HUD component library (10 components + gallery + a11y + reduced-motion) | L |
+| #26 | Build shared non-HUD UI (buttons, panels, alerts, `RUS/ENG` selector) | M |
+| #27 | Animation + terminal-transition conventions + CSS-first primitives (reduced-motion variants) | M |
+| #28 | Document the visual grammar (`docs/visual-grammar.md` — type, colour, geometry, diegetic terminology) | S |
+
+**Dependency map**
+- **Serial spine:** #24 → #27 → (#25 ∥ #26) → #28
+- **#24 is the root** — needs only merged #15; blocks #25, #26, #27.
+- **#27 should precede or co-develop with #25/#26** — they consume its easing tokens and reduced-motion primitives.
+- **#25 ∥ #26** — parallel-safe, disjoint dirs (`src/hud/` vs `src/components/`).
+- **#28** — start early on palette/type, finalise at Epic close once components exist.
+- Soft cross-phase: #26's language selector calls the #20 i18n API — build against the interface until #20 merges.
+
+**UI_UX_Designer is a required collaborator** on #25, #26, #27, #28 (Phase 2 *is*
+the visual grammar — geometry, motion feel, grammar doc are designer artifacts).
+#24 needs only a light role→token mapping review. Stories are `Ready` for
+scheduling; a Coder should not start #25/#26/#27 before the designer has provided
+specs/wireframes.
+
+**Known refactor:** Phase 0's `src/styles/cockpit.css` and
+`src/system/system-overlay.ts` carry quick HUD-ish styling — #24 catalogues it,
+#25/#27 reconcile it.
 
 ## Phase 3 — Cockpit MVP — EPIC + COARSE STORIES
 
