@@ -1,0 +1,391 @@
+/* Throwaway harness styling for the Phase 0 cockpit spike.
+   Design tokens mirror shared/style/stellar-attractor.css (Implementation Plan §1.8);
+   inlined here because the spike has no build-time token pipeline yet. */
+
+:root {
+  --sa-colors-bg: #02070d;
+  --sa-colors-panel-bg: #00080e;
+  --sa-colors-cyan: #5af0ff;
+  --sa-colors-cyan-bright: #8ffcff;
+  --sa-colors-cyan-deep: #22c7f3;
+  --sa-colors-text-main: #d8fbff;
+  --sa-colors-text-dim: #9fc7d4;
+  --sa-colors-text-faint: #6f9faa;
+  --sa-font-mono: Menlo, Consolas, "Roboto Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--sa-colors-bg);
+  color: var(--sa-colors-text-main);
+  font-family: var(--sa-font-mono);
+  overflow: hidden; /* the cockpit must never create a document scrollbar (Spec §7) */
+}
+
+#app,
+.desktop-shell,
+.mobile-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Cockpit viewport + scene (Spec §5-7) ---- */
+
+.cockpit-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  outline: none;
+  background: #01040a;
+}
+
+.cockpit-viewport:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--sa-colors-cyan-deep);
+}
+
+.cockpit-viewport.is-grabbing {
+  cursor: grabbing;
+}
+
+.cockpit-viewport.is-locked {
+  cursor: progress;
+}
+
+.cockpit-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transform: translate3d(var(--camera-x, 0), var(--camera-y, 0), 0) scale(var(--camera-scale, 1));
+  will-change: transform;
+}
+
+.cockpit-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.cockpit-layer.layer-hotspots {
+  pointer-events: none;
+}
+
+.hud-scanline {
+  animation: hud-scan 6s linear infinite;
+}
+
+@keyframes hud-scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(880px);
+    opacity: 0.15;
+  }
+}
+
+/* ---- Hotspots (Spec §16-17) ---- */
+
+.hotspot {
+  pointer-events: none;
+}
+
+.hotspot-shape {
+  pointer-events: auto;
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.hotspot-outline {
+  fill: rgba(90, 240, 255, 0);
+  stroke: rgba(90, 240, 255, 0);
+  stroke-width: 3;
+  transition: fill 160ms ease, stroke 160ms ease;
+}
+
+.hotspot-label {
+  fill: var(--sa-colors-cyan-bright);
+  font-family: var(--sa-font-mono);
+  font-size: 30px;
+  letter-spacing: 3px;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.hotspot.is-hover .hotspot-outline,
+.hotspot.is-focus .hotspot-outline {
+  fill: rgba(90, 240, 255, 0.1);
+  stroke: rgba(90, 240, 255, 0.85);
+}
+
+.hotspot.is-hover .hotspot-label,
+.hotspot.is-focus .hotspot-label {
+  opacity: 1;
+}
+
+.hotspot.is-focus .hotspot-shape {
+  stroke: var(--sa-colors-cyan-bright);
+  stroke-width: 2;
+  stroke-dasharray: 8 6;
+}
+
+.hotspot.is-active .hotspot-outline {
+  fill: rgba(90, 240, 255, 0.16);
+  stroke: var(--sa-colors-cyan-bright);
+}
+
+.hotspot.is-disabled .hotspot-shape {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ---- First-use hint (Spec §21-22) ---- */
+
+.cockpit-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: rgba(0, 12, 20, 0.82);
+  border: 1px solid var(--sa-colors-cyan-deep);
+  color: var(--sa-colors-cyan-bright);
+  letter-spacing: 3px;
+  font-size: 14px;
+  z-index: 20;
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+
+.cockpit-hint-primary {
+  font-weight: 700;
+}
+
+.cockpit-hint-secondary {
+  color: var(--sa-colors-text-faint);
+  letter-spacing: 2px;
+}
+
+.cockpit-hint-dismiss {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--sa-colors-text-dim);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.cockpit-hint.is-dismissed {
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+}
+
+/* ---- Panorama controls (Spec §23) ---- */
+
+.panorama-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.panorama-control {
+  pointer-events: auto;
+  width: 52px;
+  height: 52px;
+  font-size: 20px;
+  color: var(--sa-colors-cyan-bright);
+  background: rgba(0, 12, 20, 0.72);
+  border: 1px solid var(--sa-colors-cyan-deep);
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.panorama-control:hover:not(:disabled) {
+  background: rgba(34, 199, 243, 0.24);
+}
+
+.panorama-control:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---- System overlay (Spec §19-20) ---- */
+
+.system-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(1, 5, 10, 0.55);
+  z-index: 30;
+}
+
+.system-overlay-frame {
+  min-width: 420px;
+  max-width: 560px;
+  padding: 28px 32px;
+  background: var(--sa-colors-panel-bg);
+  border: 2px solid var(--sa-colors-cyan-deep);
+  box-shadow: 0 0 40px rgba(34, 199, 243, 0.35);
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease;
+}
+
+.system-overlay.is-open .system-overlay-frame {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.system-overlay-header {
+  color: var(--sa-colors-text-faint);
+  letter-spacing: 4px;
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.system-content-title {
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--sa-colors-cyan-bright);
+  margin-bottom: 12px;
+}
+
+.system-content-line {
+  color: var(--sa-colors-text-dim);
+  letter-spacing: 3px;
+  line-height: 1.8;
+}
+
+.system-content-note {
+  margin-top: 18px;
+  color: var(--sa-colors-text-faint);
+  font-size: 11px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+
+.system-overlay-return,
+.remote-system-return {
+  margin-top: 24px;
+  padding: 12px 18px;
+  width: 100%;
+  color: var(--sa-colors-cyan-bright);
+  background: rgba(34, 199, 243, 0.12);
+  border: 1px solid var(--sa-colors-cyan-deep);
+  letter-spacing: 3px;
+  font-family: var(--sa-font-mono);
+  cursor: pointer;
+}
+
+.system-overlay-return:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---- Mobile Remote Terminal (Spec §26-27) ---- */
+
+.mobile-shell {
+  padding: 28px 22px;
+  overflow-y: auto;
+}
+
+.remote-terminal-title {
+  font-size: 34px;
+  letter-spacing: 6px;
+  margin: 0 0 4px;
+  color: var(--sa-colors-cyan-bright);
+}
+
+.remote-terminal-sub {
+  margin: 0 0 28px;
+  color: var(--sa-colors-text-faint);
+  letter-spacing: 4px;
+}
+
+.remote-terminal-section {
+  margin-bottom: 26px;
+  border-top: 1px solid rgba(34, 199, 243, 0.28);
+  padding-top: 16px;
+}
+
+.remote-terminal-heading {
+  color: var(--sa-colors-text-faint);
+  letter-spacing: 4px;
+  font-size: 12px;
+  margin: 0 0 12px;
+}
+
+.remote-terminal-line {
+  color: var(--sa-colors-text-dim);
+  letter-spacing: 3px;
+  margin: 6px 0;
+}
+
+.remote-terminal-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 10px 0;
+  padding: 16px 14px;
+  color: var(--sa-colors-cyan-bright);
+  background: rgba(0, 12, 20, 0.72);
+  border: 1px solid var(--sa-colors-cyan-deep);
+  letter-spacing: 3px;
+  font-family: var(--sa-font-mono);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.remote-system {
+  padding-top: 8px;
+}
+
+/* ---- Reduced motion (Spec §28) ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-scanline {
+    animation: none;
+  }
+
+  .cockpit-hint,
+  .system-overlay-frame,
+  .hotspot-outline,
+  .hotspot-label {
+    transition-duration: 1ms;
+  }
+
+  .system-overlay-frame {
+    transform: none;
+    opacity: 1;
+  }
+}
