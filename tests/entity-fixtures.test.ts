@@ -1,6 +1,11 @@
 /**
- * Guards the shipped fixture entities (Story #16 — replaced/expanded by #22) and
- * the generated JSON Schema mirrors under `schemas/`.
+ * Guards the shape-example fixture entities (`tests/fixtures/`), any real seed
+ * content that lands under `data/` (#22), and the generated JSON Schema mirrors.
+ *
+ * Fixtures live under `tests/fixtures/` — NOT `data/` — so they never collide
+ * with #22's Content_Master seed authoring (`zane` and `base32` are both in the
+ * Phase 1 seed set). The content collections build fine with empty `data/`
+ * directories.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
@@ -9,31 +14,49 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { ENTITY_DIRS, ENTITY_TYPES, entitySchemaFor } from "../src/core/entities/schemas.ts";
+import {
+  ENTITY_DIRS,
+  ENTITY_TYPES,
+  type EntityType,
+  entitySchemaFor,
+} from "../src/core/entities/schemas.ts";
 import { buildReadme, buildSchemaFiles, serialize } from "../scripts/generate-schemas.ts";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-describe("data/ fixtures validate against their per-type schema", () => {
-  for (const type of ENTITY_TYPES) {
-    const dir = join(repoRoot, "data", ENTITY_DIRS[type]);
-    const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
-    for (const file of files) {
-      it(`${ENTITY_DIRS[type]}/${file}`, () => {
-        const data = JSON.parse(readFileSync(join(dir, file), "utf8"));
-        const result = entitySchemaFor(type).safeParse(data);
-        expect(result.success, JSON.stringify(result.error?.issues, null, 2)).toBe(true);
-      });
-    }
-  }
+function validateEntityFile(path: string): void {
+  const data = JSON.parse(readFileSync(path, "utf8")) as { type?: string };
+  expect(ENTITY_TYPES, `${path}: "type" must be a known entity type`).toContain(data.type);
+  const result = entitySchemaFor(data.type as EntityType).safeParse(data);
+  expect(result.success, JSON.stringify(result.error?.issues, null, 2)).toBe(true);
+}
+
+describe("tests/fixtures/ shape examples validate", () => {
+  const fixturesDir = join(repoRoot, "tests", "fixtures");
+  const files = readdirSync(fixturesDir).filter((f) => f.endsWith(".json"));
 
   it("ships at least one fixture", () => {
-    const total = ENTITY_TYPES.reduce(
-      (n, type) =>
-        n + readdirSync(join(repoRoot, "data", ENTITY_DIRS[type])).filter((f) => f.endsWith(".json")).length,
-      0,
-    );
-    expect(total).toBeGreaterThan(0);
+    expect(files.length).toBeGreaterThan(0);
+  });
+
+  for (const file of files) {
+    it(file, () => validateEntityFile(join(fixturesDir, file)));
+  }
+});
+
+describe("data/ seed content (if any) validates against its per-type schema", () => {
+  it("every JSON file under data/<type>/ matches that type's schema", () => {
+    for (const type of ENTITY_TYPES) {
+      const dir = join(repoRoot, "data", ENTITY_DIRS[type]);
+      for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+        const data = JSON.parse(readFileSync(join(dir, file), "utf8"));
+        const result = entitySchemaFor(type).safeParse(data);
+        expect(
+          result.success,
+          `${ENTITY_DIRS[type]}/${file}: ${JSON.stringify(result.error?.issues, null, 2)}`,
+        ).toBe(true);
+      }
+    }
   });
 });
 

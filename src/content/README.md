@@ -38,3 +38,7 @@ A file that violates its schema fails `astro build` / `astro check` with the
 collection, the entry, and the offending field named. Cross-file checks (dangling
 `relation.target`, duplicate slugs, unresolvable media) are **#18**, not the
 collection schema.
+
+The `data/` directories ship empty (`.gitkeep`) — the Phase 1 seed set is #22.
+Shape-example entities used by the schema tests live in `tests/fixtures/`, not
+`data/`, so they do not collide with #22's authoring.
