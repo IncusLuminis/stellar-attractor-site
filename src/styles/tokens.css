@@ -1,0 +1,9 @@
+/* Stellar Attractor design tokens.
+ *
+ * Re-exported verbatim from the existing shared token system
+ * (Implementation Plan §1 decision 8) — NOT forked. The source of truth is
+ * shared/style/SA_styles.json -> shared/style/stellar-attractor.css, generated
+ * by shared/tools/gen_SA_styles.py. This file only makes that stylesheet
+ * reachable from the Astro build via a stable in-app import path; when the
+ * HUD component library lands (Phase 2) hud.css imports this same file. */
+@import "../../shared/style/stellar-attractor.css";

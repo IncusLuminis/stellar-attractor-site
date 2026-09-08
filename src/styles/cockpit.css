@@ -1,18 +1,12 @@
-/* Throwaway harness styling for the Phase 0 cockpit spike.
-   Design tokens mirror shared/style/stellar-attractor.css (Implementation Plan §1.8);
-   inlined here because the spike has no build-time token pipeline yet. */
-
-:root {
-  --sa-colors-bg: #02070d;
-  --sa-colors-panel-bg: #00080e;
-  --sa-colors-cyan: #5af0ff;
-  --sa-colors-cyan-bright: #8ffcff;
-  --sa-colors-cyan-deep: #22c7f3;
-  --sa-colors-text-main: #d8fbff;
-  --sa-colors-text-dim: #9fc7d4;
-  --sa-colors-text-faint: #6f9faa;
-  --sa-font-mono: Menlo, Consolas, "Roboto Mono", ui-monospace, monospace;
-}
+/* Cockpit / Remote Terminal styling.
+ *
+ * Moved here from the Phase 0 harness (was src/style.css). The local :root token
+ * block the spike used (Implementation Plan §1.8 — "no token pipeline yet") is
+ * gone: tokens now come from the shared system via tokens.css, unforked.
+ *
+ * This stylesheet is imported by src/cockpit-mount.ts, so it is code-split into
+ * the cockpit island chunk and only loads on routes that mount the island. */
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;
@@ -28,7 +22,7 @@ body {
   overflow: hidden; /* the cockpit must never create a document scrollbar (Spec §7) */
 }
 
-#app,
+.cockpit-root,
 .desktop-shell,
 .mobile-shell {
   position: relative;

@@ -1,0 +1,45 @@
+---
+// Application shell wrapper (Technical Architecture §5).
+// Stays deliberately thin for the Phase 1 skeleton — real HUD layer, locale
+// provider and navigation controller land in later phases.
+//
+// Design tokens are pulled straight from shared/style/ with no fork
+// (Implementation Plan §1 decision 8). This is CSS custom properties only:
+// it attaches no rules and ships no JavaScript.
+import "../styles/tokens.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  lang?: "en" | "ru";
+}
+
+const {
+  title,
+  description = "Stellar Attractor — an interactive universe.",
+  lang = "en",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--sa-colors-bg, #02070d);
+    color: var(--sa-colors-text-main, #d8fbff);
+    font-family: var(--sa-font-mono, Menlo, Consolas, "Roboto Mono", monospace);
+  }
+</style>

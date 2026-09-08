@@ -1,0 +1,22 @@
+---
+// Scaffold smoke-test route. Exists so the skeleton has a plain content page
+// that mounts no island — used to verify that such a route ships zero
+// JavaScript (Implementation Plan §2.1, Technical Architecture §37) and renders
+// with no console errors under `astro preview`.
+//
+// Real routes (entity pages, Database Index, 404) are authored in #16 / #19.
+// This page can be deleted once those exist.
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Stellar Attractor — Scaffold Placeholder">
+  <main style="padding: 48px; max-width: 60ch; line-height: 1.8; letter-spacing: 1px;">
+    <h1 style="letter-spacing: 4px; color: var(--sa-colors-cyan-bright);">
+      SCAFFOLD ONLINE
+    </h1>
+    <p style="color: var(--sa-colors-text-dim);">
+      Phase 1 Astro skeleton. This plain content route carries no interactive
+      island and therefore ships no client JavaScript.
+    </p>
+  </main>
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+// `/` — the cockpit (desktop) / BASE #32 REMOTE TERMINAL (mobile).
+//
+// Replaces the Phase 0 throwaway root index.html + src/main.ts. The cockpit is
+// mounted as a client island; the route still renders server-side first
+// (progressive enhancement, Implementation Plan §2.1). Opening any entity URL
+// directly must never require navigating this route first (§7) — that routing
+// work lands in #19.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CockpitIsland from "../components/CockpitIsland";
+---
+
+<BaseLayout
+  title="Stellar Attractor — Cockpit"
+  description="Navigate the Stellar Attractor universe from the BASE #32 cockpit."
+>
+  <noscript>
+    <p style="padding: 24px; letter-spacing: 2px;">
+      This experience requires JavaScript. Conventional navigation through the
+      Database Index will be available once that system is built.
+    </p>
+  </noscript>
+
+  <CockpitIsland client:idle />
+</BaseLayout>
