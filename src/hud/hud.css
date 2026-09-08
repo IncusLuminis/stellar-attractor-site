@@ -1,0 +1,165 @@
+/* Stellar Attractor — HUD component token & primitive layer.
+ *
+ * Phase 2 / Epic #23, issue #24. This is the *wiring*: it makes the shared
+ * design-token system reachable under stable `--hud-*` role names and gives
+ * #25 (SVG HUD components), #26 (shared UI) and #27 (animation conventions)
+ * the token slots they consume. It is NOT the component library.
+ *
+ * Token source of truth (Implementation Plan §1 decision 8, §6):
+ *   shared/style/SA_styles.json               (source of truth — edit here)
+ *     -> shared/tools/gen_SA_styles.py         (the generator)
+ *     -> shared/style/stellar-attractor.css    (GENERATED — never hand-edited,
+ *        + shared/style/hud_style_tokens.py     never forked; both are output)
+ *     -> src/styles/tokens.css                 (the #15 in-app re-export path)
+ *     -> this file                             (imports it, adds only --hud-*)
+ *
+ * Rules for this file:
+ *   - Import the token layer via src/styles/tokens.css only (the #15 path);
+ *     never @import stellar-attractor.css directly.
+ *   - Never assign a `--sa-*` custom property here — read them with var() only.
+ *   - No raw hex / rgb() / rgba() / hsl(): every colour resolves to a `--sa-*`
+ *     token. A colour the HUD needs that the palette lacks is a
+ *     shared/style/SA_styles.json change + regen, documented in README.md —
+ *     not a literal in this file.
+ *   - Non-colour scalars (line widths, radii, opacities, durations) live in the
+ *     `--hud-*` block below so components never inline magic numbers either.
+ *
+ * The `--hud-*` role -> `--sa-*` mapping table, the reduced-motion pattern and
+ * the Phase 0 style catalogue all live in src/hud/README.md.
+ */
+@import "../styles/tokens.css";
+
+:root {
+  /* ===================================================================
+   * HUD role  ->  SA palette      (full table + rationale in README.md)
+   * =================================================================== */
+
+  /* -- Surfaces -- */
+  --hud-bg: var(--sa-colors-panel-bg);          /* panel / frame interior      */
+  --hud-bg-soft: var(--sa-colors-panel-bg-soft); /* translucent overlay panels */
+  --hud-backdrop: var(--sa-colors-bg);          /* deepest background          */
+
+  /* -- Lines & frames -- */
+  --hud-line: var(--sa-colors-cyan-deep);       /* primary frame stroke        */
+  --hud-line-bright: var(--sa-colors-cyan-bright); /* emphasised / active edge */
+  --hud-line-dim: var(--sa-colors-cyan);        /* secondary inner frame       */
+  --hud-line-faint: var(--sa-colors-cyan-soft); /* micro grid / tertiary lines */
+  --hud-accent: var(--sa-colors-cyan-bright);   /* reticle / marker fill       */
+  --hud-glow: var(--sa-colors-cyan-soft);       /* drop-shadow / bloom colour  */
+
+  /* -- Text -- */
+  --hud-text: var(--sa-colors-text-main);       /* primary readout             */
+  --hud-text-dim: var(--sa-colors-text-dim);    /* body / secondary readout    */
+  --hud-muted: var(--sa-colors-text-faint);     /* labels, captions, meta      */
+
+  /* -- Status / signal -- */
+  --hud-ok: var(--sa-colors-green);             /* nominal / online            */
+  --hud-caution: var(--sa-colors-yellow);       /* advisory                    */
+  --hud-warning: var(--sa-colors-orange);       /* warning                     */
+  --hud-alert: var(--sa-colors-red);            /* alert / fault               */
+
+  /* -- Typography -- */
+  --hud-font: var(--sa-font-mono);
+
+  /* ===================================================================
+   * Structural scalars — design-system decisions (Technical Arch §19).
+   * Not in the SA palette by design (they are not colour/opacity/font);
+   * kept here so components never inline them.
+   * =================================================================== */
+  --hud-line-width: 1px;         /* default stroke                        */
+  --hud-line-width-frame: 2.4px; /* outer frame (matches .sa-frame-outer) */
+  --hud-line-width-accent: 1.2px;
+  --hud-radius: 4px;             /* Technical Arch §19 example            */
+  --hud-radius-sharp: 0px;       /* squared corners (cockpit default)     */
+
+  /* Opacity scale — keeps frame / stroke alphas off literal values. */
+  --hud-opacity-frame: 0.95;
+  --hud-opacity-line: 0.48;
+  --hud-opacity-line-faint: 0.18;
+  --hud-opacity-fill: 0.82;
+  --hud-opacity-disabled: 0.35;
+
+  /* ===================================================================
+   * Motion token SLOTS — PROVISIONAL. #27 owns the animation conventions;
+   * this story only reserves the names so #25/#26 have something stable
+   * to reference. Values mirror config/cockpit.json -> animation.* and the
+   * Cockpit Interaction Prototype Specification §14 (400-800 ms, controlled
+   * mechanical easing, no overshoot / bounce / spring). CSS cannot import
+   * the JSON, so tests/hud-tokens.test.ts asserts these stay in sync.
+   * =================================================================== */
+  --hud-easing-mechanical: cubic-bezier(0.4, 0.0, 0.2, 1); /* config: animation.easing */
+  --hud-duration-micro: 160ms;   /* hover / idle state changes (cockpit.css baseline) */
+  --hud-duration-fast: 340ms;    /* config: animation.arrowStepMs */
+  --hud-duration-return: 560ms;  /* config: animation.returnMs    */
+  --hud-duration-focus: 620ms;   /* config: animation.focusMs     */
+  --hud-duration-ambient: 900ms; /* config: animation.nudgeMs — ambient loops */
+  --hud-duration-reduced: 0ms;   /* config: animation.reducedMotionMs */
+
+  /* Active, reduced-motion-aware values. #25/#26/#27 should drive their
+   * transitions / animations from THESE, not the raw --hud-duration-* slots,
+   * so the reduced-motion scaffold below flips everything in one place. */
+  --hud-anim-duration: var(--hud-duration-focus);
+  --hud-anim-duration-fast: var(--hud-duration-fast);
+  --hud-transition-duration: var(--hud-duration-micro);
+}
+
+/* =====================================================================
+ * Foundational primitives — consumed by #25/#26. These are token hooks,
+ * not components; the component library (HudFrame, HudReticle, …) is #25.
+ * ===================================================================== */
+
+.hud {
+  position: relative;
+  font-family: var(--hud-font);
+  color: var(--hud-text);
+}
+
+.hud-dim { color: var(--hud-text-dim); }
+.hud-muted { color: var(--hud-muted); }
+
+/* Status modifiers set one `--hud-signal` hook; a component colours its own
+ * line / text / fill from it (#25 wires the actual components). */
+.hud-signal-ok { --hud-signal: var(--hud-ok); }
+.hud-signal-caution { --hud-signal: var(--hud-caution); }
+.hud-signal-warning { --hud-signal: var(--hud-warning); }
+.hud-signal-alert { --hud-signal: var(--hud-alert); }
+
+/* =====================================================================
+ * prefers-reduced-motion scaffold  (Technical Arch §20, Cockpit Spec §28)
+ *
+ * The single place reduced motion is handled for the HUD layer. A component
+ * in #25/#26/#27 opts in by either:
+ *   (a) driving durations from --hud-anim-duration* / --hud-transition-duration
+ *       (flipped to --hud-duration-reduced below), or
+ *   (b) adding a decorative keyframe animation to the `.hud-animated` hook
+ *       (or its own selector inside the media block below).
+ *
+ * Working example: `.hud-pulse` animates opacity under normal motion and is
+ * neutralised under reduced motion, with its final state still legible.
+ * ===================================================================== */
+
+@keyframes hud-pulse {
+  0%, 100% { opacity: var(--hud-opacity-line-faint); }
+  50% { opacity: var(--hud-opacity-frame); }
+}
+
+.hud-pulse {
+  animation: hud-pulse var(--hud-duration-ambient) var(--hud-easing-mechanical) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hud-anim-duration: var(--hud-duration-reduced);
+    --hud-anim-duration-fast: var(--hud-duration-reduced);
+    --hud-transition-duration: var(--hud-duration-reduced);
+  }
+
+  /* Decorative loops stop. Reset motion only — per-component resting
+   * end-states (final opacity/transform for a component whose animation
+   * carried real information) are #25/#27's job, added here per component. */
+  .hud-animated,
+  .hud-pulse {
+    animation: none;
+    transition: none;
+  }
+}
