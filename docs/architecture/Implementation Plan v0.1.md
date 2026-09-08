@@ -313,12 +313,15 @@ system consumes on mount.
 
 7.2 Localization
 
-`LocalizedText` fields ship both languages in the same JSON. The locale
-preference is stored client-side (`localStorage`, with a `?lang=` override for
-shareable links). Entity pages render the active locale server-side for SEO and
-include the other locale for the client toggle; `hreflang` alternates are
-emitted. Changing language re-renders text only — selected entity, camera
-position, scroll position, and system state are untouched (Vision §22).
+`LocalizedText` fields ship both languages in the same JSON. **English is the
+default locale** (SEO reach and consistency with localbubble.space); Russian is
+fully first-class and reached via the toggle — this is a presentation default
+only, not a downgrade of RU content. The locale preference is stored client-side
+(`localStorage`, with a `?lang=` override for shareable links). Entity pages
+render the active locale server-side for SEO and include the other locale for the
+client toggle; `hreflang` alternates are emitted. Changing language re-renders
+text only — selected entity, camera position, scroll position, and system state
+are untouched (Vision §22).
 
 7.3 Search
 
@@ -465,8 +468,19 @@ Decompose this plan into an Epic/Story backlog. Detail expectations:
 
 14. OPEN QUESTIONS (non-blocking)
 
-* Which GitHub Project board hosts this backlog (no Stellar Attractor board
-  exists yet) — for the Product Owner to resolve with the human owner.
 * Behavioural breakpoint values for compact / cockpit modes — to be set from the
   Phase 0 prototype, not from device names.
 * External media hosting — revisited with the deployment decision.
+
+Resolved (2026-09-08):
+
+* GitHub Project board — `IncusLuminis/projects/6` ("Stellar Attractor
+  Universe"). Backlog is Epic #1 (Phase 0) … Epic #61 (Phase 8) in the
+  `stellar-attractor-site` repo, all labelled `stellar attractor`.
+* Default locale — **English** (see §7.2). RU stays first-class via the toggle.
+* Universe canon source — `shared/ai/docs/` in full is authoritative: persona HR
+  files (`personas/HR files/*.md`, EN), worldbuilding (`world/`, RU, incl.
+  `04-institutions/expedition-fleet.md` and `06-space-and-infrastructure/`),
+  `world/World Context.md`, and `constitution/constitution.md`. Seed and later
+  content is mined from these files with facts traceable to specific sources, and
+  each persona file's "Canon Preservation → Immutable" list is respected.

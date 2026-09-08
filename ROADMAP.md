@@ -78,9 +78,9 @@ The pending-findings note now sits only on Epic #29 (Phase 3) and downstream.
 | #17 | Build the entity + relation resolver | M |
 | #18 | CI entity-validation script wired into build + GitHub Actions | M |
 | #19 | Routing + route↔system map + deep-link focus-intent contract (+ prerendered entity docs, 404) | L |
-| #20 | i18n: LocalizedText, locale store, `?lang=` override, hreflang, state-preserving switch | M |
+| #20 | i18n: LocalizedText, locale store, `?lang=` override, hreflang, state-preserving switch (**EN default**) | M |
 | #21 | Astronavigation MVP stub + `AstronavAdapter` typed interface | M |
-| #22 | Author the Phase 1 seed entity set in both locales with cross-class relations | M |
+| #22 | Author the 6 seed entities from canon (`shared/ai/docs/`) — assigned to Content_Master | M |
 
 **Dependency map**
 - **Critical path:** #15 → #16 → #17 → #19 → #21
@@ -95,9 +95,19 @@ The pending-findings note now sits only on Epic #29 (Phase 3) and downstream.
 shell + 404 page — minimal semantic wireframe), #21 (Astronav stub panel layout).
 Minor: #20 (RUS/ENG switch placement).
 
-**Open questions flagged to the human:** default locale RU vs EN (#20); source and
-owner of seed-entity canon facts (#22); GitHub Actions workflow ownership,
-Coder vs DevOps (#18).
+**#22 is not a Coder Story** — canon → structured-data authoring. Assigned to
+**Content_Master** (with **Fellow_Astrophysicist** for Fomalhaut / astronomical
+entities); dispatch once #16 (schema) is merged. Canon source:
+`shared/ai/docs/` in full — `personas/HR files/*.md`, `world/`,
+`constitution/constitution.md` — facts traceable to specific files, each persona's
+"Canon Preservation → Immutable" list respected.
+
+**Resolved by the human (2026-09-08):**
+- Default locale = **English** (SEO reach + consistency with localbubble.space);
+  RU stays first-class via the toggle. Story #20 AC and Implementation Plan §7.2 / §14 updated.
+- Seed-entity canon source = `shared/ai/docs/` (above). Story #22 AC updated.
+
+**Still open:** GitHub Actions workflow ownership, Coder vs DevOps (#18).
 
 ## Phase 2 — Visual system — EPIC + COARSE STORIES
 
