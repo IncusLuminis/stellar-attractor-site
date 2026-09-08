@@ -89,13 +89,31 @@ export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const ID_PATTERN = /^[a-z0-9-]+\.[a-z0-9-]+$/;
 
 /**
- * A media reference points at a *stable media id or path*, never an inline
- * filename (Implementation Plan §4). We reject anything that ends in a recognised
- * asset extension so `"zane-portrait.png"` fails but `"media.zane-portrait"` or
- * `"portraits/zane"` passes.
+ * Recognised media asset extensions. A media reference must point at a *stable
+ * media id or path*, never an inline filename (Implementation Plan §4), so a
+ * value ending in one of these is rejected: `"zane-portrait.png"` fails but
+ * `"media.zane-portrait"` / `"portraits/zane"` pass. Shared with the JSON Schema
+ * generator, which mirrors this rule as a `pattern`.
  */
-const MEDIA_FILENAME_PATTERN =
-  /\.(png|jpe?g|webp|avif|gif|svg|mp4|webm|mov|m4v|mp3|wav|ogg|pdf)$/i;
+export const MEDIA_ASSET_EXTENSIONS = [
+  "png",
+  "jpg",
+  "jpeg",
+  "webp",
+  "avif",
+  "gif",
+  "svg",
+  "mp4",
+  "webm",
+  "mov",
+  "m4v",
+  "mp3",
+  "wav",
+  "ogg",
+  "pdf",
+] as const;
+
+const MEDIA_FILENAME_PATTERN = new RegExp(`\\.(?:${MEDIA_ASSET_EXTENSIONS.join("|")})$`, "i");
 
 /* -------------------------------------------------------------------------- */
 /*  LocalizedText — both `ru` and `en`, both non-empty (Tech Arch §13)         */
@@ -140,6 +158,9 @@ export const mediaReferenceSchema = z
     /** Localized caption. */
     caption: localizedTextSchema.optional(),
   })
+  // `.strict()` like every other object here: a misspelled key (`captoin`, `src`)
+  // is a mistake we want the build to name, not silently drop. #22 / a later
+  // Story adds fields here first if the media pipeline needs them.
   .strict();
 
 export type MediaReference = z.infer<typeof mediaReferenceSchema>;

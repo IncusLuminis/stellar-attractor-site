@@ -35,11 +35,13 @@
       "properties": {
         "ru": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "en": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         }
       },
       "required": [
@@ -53,11 +55,13 @@
       "properties": {
         "ru": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "en": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         }
       },
       "required": [
@@ -71,11 +75,13 @@
       "properties": {
         "ru": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "en": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         }
       },
       "required": [
@@ -91,7 +97,8 @@
         "properties": {
           "id": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "pattern": "^(?!.*\\.(?:[pP][nN][gG]|[jJ][pP][gG]|[jJ][pP][eE][gG]|[wW][eE][bB][pP]|[aA][vV][iI][fF]|[gG][iI][fF]|[sS][vV][gG]|[mM][pP]4|[wW][eE][bB][mM]|[mM][oO][vV]|[mM]4[vV]|[mM][pP]3|[wW][aA][vV]|[oO][gG][gG]|[pP][dD][fF])$)\\S(?:.*\\S)?$"
           },
           "role": {
             "type": "string",
@@ -109,11 +116,13 @@
             "properties": {
               "ru": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               },
               "en": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               }
             },
             "required": [
@@ -127,11 +136,13 @@
             "properties": {
               "ru": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               },
               "en": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               }
             },
             "required": [
@@ -154,11 +165,13 @@
         "properties": {
           "type": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "pattern": "\\S"
           },
           "target": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "pattern": "\\S"
           }
         },
         "required": [
@@ -182,7 +195,8 @@
       "type": "array",
       "items": {
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "pattern": "\\S"
       }
     }
   },

@@ -9,15 +9,18 @@
  *   npm run schemas:generate   # (re)write schemas/*.schema.json
  *   npm run schemas:check      # exit non-zero if the files are stale
  *
- * NOTE: `z.toJSONSchema` cannot express the cross-field `id === "<type>.<slug>"`
- * refinement; the representable part (the `id` pattern) is included. Consumers
- * that need the exact rule should use the Zod schema directly.
+ * `z.toJSONSchema` drops Zod's `.trim()` transforms and `.refine()` predicates,
+ * so the raw output under-constrains string fields. `tightenJsonSchema()` below
+ * re-adds every constraint JSON Schema *can* express (a non-whitespace `pattern`
+ * for the trimmed non-empty fields; the asset-extension negative lookahead for
+ * media ids). What still cannot be represented is listed in `schemas/README.md`
+ * under "Constraints enforced by Zod / astro build but not by these mirrors".
  */
 
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { argv } from "node:process";
 import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { z } from "zod";
 
@@ -25,6 +28,7 @@ import {
   CLEARANCE_LEVELS,
   ENTITY_DIRS,
   ENTITY_TYPES,
+  MEDIA_ASSET_EXTENSIONS,
   clearanceSchema,
   entityObjectSchemas,
   localizedTextSchema,
@@ -37,8 +41,72 @@ const SCHEMAS_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "schemas
 
 type JsonSchema = Record<string, unknown>;
 
+/* -------------------------------------------------------------------------- */
+/*  Faithful-as-JSON-Schema-allows tightening                                  */
+/* -------------------------------------------------------------------------- */
+
+/** "contains a non-whitespace character" — the representable half of `.trim().min(1)`. */
+const NON_BLANK_PATTERN = "\\S";
+
+/** Case-insensitive character class for a literal ASCII letter, else the char verbatim. */
+function caseInsensitive(literal: string): string {
+  return [...literal]
+    .map((ch) => (/[a-z]/i.test(ch) ? `[${ch.toLowerCase()}${ch.toUpperCase()}]` : ch))
+    .join("");
+}
+
+/**
+ * ECMA-262 pattern mirroring `mediaReferenceSchema.id`: non-blank, no leading /
+ * trailing whitespace, and not ending in a known asset extension (case-insensitive).
+ */
+const MEDIA_ID_PATTERN = `^(?!.*\\.(?:${MEDIA_ASSET_EXTENSIONS.map(caseInsensitive).join(
+  "|",
+)})$)\\S(?:.*\\S)?$`;
+
+/**
+ * True when we are visiting the `id` string of a MediaReference — i.e. `key` is
+ * `"id"` and `parent` is a `properties` map that also holds `role` and `caption`
+ * (the combination is unique to MediaReference, at the top level of
+ * `media-reference.schema.json` and nested under `media.items` in the entity schemas).
+ */
+function isMediaIdNode(key: string | undefined, parent: JsonSchema | undefined): boolean {
+  return key === "id" && !!parent && "role" in parent && "caption" in parent;
+}
+
+/**
+ * Walk the generated schema and re-add representable constraints `z.toJSONSchema`
+ * dropped. Mutates in place and returns it.
+ */
+function tightenJsonSchema(node: unknown, key?: string, parent?: JsonSchema): unknown {
+  if (Array.isArray(node)) {
+    for (const item of node) tightenJsonSchema(item, undefined, undefined);
+    return node;
+  }
+  if (!node || typeof node !== "object") return node;
+
+  const schema = node as JsonSchema;
+  if (schema.type === "string") {
+    if (isMediaIdNode(key, parent)) {
+      schema.pattern = MEDIA_ID_PATTERN;
+    } else if (
+      typeof schema.minLength === "number" &&
+      schema.minLength >= 1 &&
+      typeof schema.pattern !== "string"
+    ) {
+      // LocalizedText `ru`/`en`, relation `type`/`target`, `tags[]` — trimmed, non-empty.
+      schema.pattern = NON_BLANK_PATTERN;
+    }
+  }
+
+  for (const [childKey, childValue] of Object.entries(schema)) {
+    tightenJsonSchema(childValue, childKey, schema);
+  }
+  return node;
+}
+
 function toJsonSchema(schema: z.ZodType, id: string, title: string): JsonSchema {
   const out = z.toJSONSchema(schema, { target: "draft-2020-12" }) as JsonSchema;
+  tightenJsonSchema(out);
   return { $id: `${id}.schema.json`, title, ...out };
 }
 
@@ -63,12 +131,12 @@ export function buildSchemaFiles(): Record<string, JsonSchema> {
   return files;
 }
 
-function serialize(schema: JsonSchema): string {
+export function serialize(schema: JsonSchema): string {
   return `${JSON.stringify(schema, null, 2)}\n`;
 }
 
 /** README documenting each entity type's fields (AC: "short doc comment or schemas/README"). */
-function buildReadme(): string {
+export function buildReadme(): string {
   const typeList = ENTITY_TYPES.map((t) => `\`${t}\` → \`data/${ENTITY_DIRS[t]}/\``).join(", ");
   return `# schemas/
 
@@ -95,18 +163,38 @@ drift.
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
-| \`id\` | string | yes | \`<type>.<slug>\`, e.g. \`person.zane\`. Pattern \`^[a-z0-9-]+\\.[a-z0-9-]+$\`; the exact \`id === type + "." + slug\` rule is a Zod refinement (not in JSON Schema). |
+| \`id\` | string | yes | \`<type>.<slug>\`, e.g. \`person.zane\`. Mirror enforces \`pattern: ^[a-z0-9-]+\\.[a-z0-9-]+$\` only — see caveat 1 below. |
 | \`type\` | enum | yes | One of: ${ENTITY_TYPES.map((t) => `\`${t}\``).join(", ")}. |
-| \`slug\` | string | yes | Lowercase, URL-safe. Pattern \`^[a-z0-9]+(?:-[a-z0-9]+)*$\`. |
-| \`name\` | LocalizedText | yes | \`{ ru, en }\`, both non-empty. |
-| \`shortDescription\` | LocalizedText | no | Both locales required when present. |
-| \`description\` | LocalizedText | no | Both locales required when present. |
-| \`media\` | MediaReference[] | no | \`{ id, role?, alt?, caption? }\`. \`id\` is a stable media id / path — an inline filename with an asset extension is rejected. |
-| \`relations\` | Relation[] | no | \`{ type, target }\`, both non-empty. Target resolution across files is #18, not this schema. |
+| \`slug\` | string | yes | Lowercase, URL-safe. \`pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$\`. |
+| \`name\` | LocalizedText | yes | \`{ ru, en }\`, both present and non-blank. |
+| \`shortDescription\` | LocalizedText | no | Both locales present and non-blank when the field is present. |
+| \`description\` | LocalizedText | no | Both locales present and non-blank when the field is present. |
+| \`media\` | MediaReference[] | no | \`{ id, role?, alt?, caption? }\`. \`id\` is a stable media id / path; the mirror \`pattern\` rejects a blank value or one ending in a known asset extension (case-insensitive): ${MEDIA_ASSET_EXTENSIONS.map((e) => `\`.${e}\``).join(", ")}. |
+| \`relations\` | Relation[] | no | \`{ type, target }\`, both non-blank. Cross-file target resolution is #18, not this schema. |
 | \`clearance\` | enum | no | One of: ${CLEARANCE_LEVELS.map((c) => `\`${c}\``).join(", ")}. Presentation only for the MVP. |
-| \`tags\` | string[] | no | Non-empty strings. |
+| \`tags\` | string[] | no | Non-blank strings. |
 
-Unknown top-level keys are rejected (\`additionalProperties: false\`).
+Unknown properties are rejected at every object level (\`additionalProperties: false\`).
+
+"Non-blank" in the mirrors is \`minLength: 1\` plus \`pattern: "\\\\S"\` (must contain a
+non-whitespace character) — the closest JSON Schema can get to Zod's
+\`.trim().min(1)\`.
+
+## Constraints enforced by Zod / \`astro build\` but not (fully) by these mirrors
+
+JSON Schema cannot express these; a tool validating against the mirrors alone
+will be more permissive than \`astro build\`. Use the Zod schema directly where
+the exact rule matters.
+
+1. **\`id\` identity.** The mirror \`pattern\` only checks \`id\` is two
+   dot-separated \`[a-z0-9-]\` segments. Zod additionally requires
+   \`id === \`\${type}.\${slug}\`\` exactly (a cross-field \`superRefine\`).
+2. **Whitespace trimming.** Zod \`.trim()\`s every \`LocalizedText\` field,
+   \`relation.type\`/\`target\`, \`media[].id\` and \`tags[]\` *before* the
+   non-empty check and stores the trimmed value. The mirrors only assert the
+   value is non-blank (\`pattern: "\\\\S"\`); leading/trailing whitespace inside an
+   otherwise non-blank value passes the mirror (the media-\`id\` \`pattern\` is the
+   exception — it also forbids leading/trailing whitespace).
 
 ## Collections
 
@@ -165,12 +253,9 @@ function check(): void {
   console.log("[generate-schemas] schemas/ is up to date.");
 }
 
-const executedDirectly =
-  argv[1] !== undefined && import.meta.url === pathToFileURL(argv[1]).href;
-
-if (executedDirectly) {
+if (import.meta.main) {
   if (argv.includes("--check")) check();
   else generate();
 }
 
-export { SCHEMAS_DIR, buildReadme, serialize };
+export { SCHEMAS_DIR };
