@@ -1,0 +1,21 @@
+{
+  "$id": "localized-text.schema.json",
+  "title": "LocalizedText",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "ru": {
+      "type": "string",
+      "minLength": 1
+    },
+    "en": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "ru",
+    "en"
+  ],
+  "additionalProperties": false
+}
