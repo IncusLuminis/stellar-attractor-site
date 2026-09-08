@@ -7,6 +7,12 @@
 // (Implementation Plan §1 decision 8). This is CSS custom properties only:
 // it attaches no rules and ships no JavaScript.
 import "../styles/tokens.css";
+// HUD token & primitive layer (#24): maps stable `--hud-*` role names onto the
+// SA palette for the Phase 2 component library (#25/#26/#27). `--hud-*` custom
+// properties + a `:root` reduced-motion scaffold + a few token hooks — no
+// components. hud.css re-imports tokens.css, so the line above is redundant but
+// kept explicit for the skeleton's documented intent.
+import "../hud/hud.css";
 
 interface Props {
   title: string;
