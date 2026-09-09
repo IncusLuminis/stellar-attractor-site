@@ -38,21 +38,30 @@ npm run typecheck  # astro check — strict TS diagnostics over .astro / .ts / .
 `npm run build` runs an npm `prebuild` hook first:
 
 ```
-prebuild ─┬─ validate:entities   → node scripts/validate-entities.ts   (placeholder — #18)
+prebuild ─┬─ validate:entities   → node scripts/validate-entities.ts   (#18 — live)
           └─ build:search-index  → node scripts/build-search-index.ts  (placeholder — Phase 4 / #38)
 ```
 
-Both scripts are **placeholders that exit 0** with a "not implemented" message.
-The hook wiring exists so #18 and #38 only fill in the script bodies — the build
-already fails if either script exits non-zero. Implementation Plan §10.
+`validate-entities.ts` (#18) is **live**: it schema-validates every
+`data/<type>/*.json` against the #16 Zod schemas and runs the cross-file
+integrity checks (`Technical Architecture §12`) — duplicate `id`/`slug`, unknown
+`type`, misfiled files, dangling `relation.target`, missing `ru`/`en`, and media
+references that do not resolve (`scripts/check-media-refs.ts`). It prints a
+report naming the file, entity id, field and reason, and exits non-zero on any
+violation — failing the build. `npm run validate:entities` runs it standalone;
+`npm run check:media-refs` is the media-reference-only view (`--media-only`).
+`build:search-index.ts` is still a placeholder that exits 0. Implementation Plan §10.
 
 ### `npm test`
 
 Runs the Phase 0 cockpit unit tests (`tests/` — camera bounds math at the four
 Spec §25 viewport sizes, click-vs-drag threshold, every state-machine
 transition, focus/return tweens on a fake clock, resize hardening) plus
-`tests/cockpit-framework-independence.test.ts` (see below). Entity / relation
-tests arrive with #17 / #18.
+`tests/cockpit-framework-independence.test.ts` (see below), the #16 entity-schema
+tests, and `tests/validate-entities.test.ts` (#18 — one broken fixture per
+`Technical Architecture §12` failure mode under `tests/fixtures/validate-entities/`,
+each proving the validator exits non-zero with the right message). Entity /
+relation resolver tests arrive with #17.
 
 ---
 
@@ -149,7 +158,7 @@ src/
 data/       universe entity JSON — #16 / #22
 schemas/    JSON Schema mirrors of the Zod schemas — #16
 config/     cockpit.json — standalone camera configuration (Spec §40.3)
-scripts/    validate-entities.ts · build-search-index.ts (placeholders)
+scripts/    validate-entities.ts + check-media-refs.ts (#18, live) · build-search-index.ts (placeholder)
 public/     static assets; public/media/ for local dev media
 shared/style/   existing SA design tokens — do not fork
 ```
