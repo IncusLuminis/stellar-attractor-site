@@ -1,0 +1,6 @@
+{
+  "id": "xenomorph.drone",
+  "type": "xenomorph",
+  "slug": "drone",
+  "name": { "ru": "Дрон", "en": "Drone" }
+}

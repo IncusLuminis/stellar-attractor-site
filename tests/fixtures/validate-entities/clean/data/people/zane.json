@@ -1,0 +1,7 @@
+{
+  "id": "person.zane",
+  "type": "person",
+  "slug": "zane",
+  "name": { "ru": "Зейн", "en": "Zane" },
+  "relations": [{ "type": "assigned_to", "target": "station.base32" }]
+}

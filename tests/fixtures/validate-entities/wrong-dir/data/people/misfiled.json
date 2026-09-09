@@ -1,0 +1,6 @@
+{
+  "id": "station.misfiled",
+  "type": "station",
+  "slug": "misfiled",
+  "name": { "ru": "Не туда", "en": "Misfiled" }
+}
