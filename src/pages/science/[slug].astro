@@ -1,0 +1,13 @@
+---
+// /science/<slug> — entity route (#19 AC 1). Semantic structure only; visual design
+// is Phase 2/3 + a UI_UX_Designer pass. All rendering lives in EntityDocument.
+import EntityDocument from "../../components/EntityDocument.astro";
+import { entities } from "../../core/entities";
+import { entityStaticPaths } from "../../core/navigation";
+
+export const getStaticPaths = () => entityStaticPaths(entities, "science");
+
+const { entity } = Astro.props;
+---
+
+<EntityDocument entity={entity} />

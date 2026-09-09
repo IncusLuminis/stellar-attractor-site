@@ -1,0 +1,272 @@
+---
+/**
+ * EntityDocument — the server-rendered body of every `/<type>/<slug>` route
+ * (#19 AC 3 & 4; Technical Architecture §40 SEO/indexability; Implementation
+ * Plan §7.1).
+ *
+ * SEMANTIC STRUCTURE ONLY. Visual design is Phase 2/3 plus a UI_UX_Designer
+ * pass (parked by a human decision); this establishes the DOM contract and the
+ * SEO surface. Landmarks, heading order and the `[data-i18n]` locale contract
+ * are load-bearing — keep them. Everything else is meant to be restyled.
+ *
+ * The whole record renders at build time, independent of any client island:
+ *   - <h1> name, short + long description
+ *   - "Related records" — each relation as <a href={target.url}>{target.name}</a>
+ *     via the #17 resolver (resolved + unresolved handled)
+ *   - "Referenced by" — reverse relations (#17 getReverseRelations)
+ *   - a media metadata block (no real assets yet — id / role / alt only)
+ *   - hreflang alternates + canonical come from BaseLayout (per-route, confirmed)
+ *
+ * Localized text ships BOTH locales as data attributes so #20's client swap
+ * works; the visible default is `en` (`t(value, "en")`). See src/core/i18n/README.md.
+ *
+ * `restricted` / `classified` records render the locked state instead of the
+ * descriptions — src/core/clearance (minimal first cut; threshold flagged).
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocaleSwitch from "../core/i18n/LocaleSwitch";
+import { entities } from "../core/entities";
+import type { UniverseEntity } from "../core/entities/schemas";
+import { t } from "../core/i18n";
+import { systemForEntity } from "../core/navigation";
+import { isClearanceLocked, RESTRICTED_RECORD_LINES } from "../core/clearance";
+
+interface Props {
+  entity: UniverseEntity;
+}
+
+const { entity } = Astro.props;
+
+const name = t(entity.name, "en");
+const locked = isClearanceLocked(entity.clearance);
+const { system } = systemForEntity(entity);
+
+const relations = await entities.resolveRelations(entity);
+const referencedBy = await entities.getReverseRelations(entity);
+const media = entity.media ?? [];
+
+const description = locked
+  ? `${entity.type} record — ${name}. Access level: restricted.`
+  : typeof entity.shortDescription?.en === "string"
+    ? t(entity.shortDescription, "en")
+    : `${entity.type} record — ${name}`;
+
+/** Split a long description into paragraphs on blank lines; keep both locales whole per element. */
+const longParagraphsEn = entity.description ? t(entity.description, "en").split(/\n{2,}/) : [];
+---
+
+<BaseLayout title={`${name} — Stellar Attractor`} description={description}>
+  <nav aria-label="Language / Язык">
+    <LocaleSwitch client:idle />
+  </nav>
+
+  <main>
+    <article
+      data-entity-id={entity.id}
+      data-entity-type={entity.type}
+      data-system={system}
+    >
+      <header>
+        <p>
+          <span>{entity.type}</span>
+          {" · "}
+          <code>{entity.id}</code>
+        </p>
+        <h1 data-i18n data-i18n-en={entity.name.en} data-i18n-ru={entity.name.ru}>{name}</h1>
+        {
+          !locked &&
+            entity.shortDescription && (
+            <p
+              data-i18n
+              data-i18n-en={entity.shortDescription.en}
+              data-i18n-ru={entity.shortDescription.ru}
+            >
+              {t(entity.shortDescription, "en")}
+            </p>
+          )
+        }
+      </header>
+
+      {
+        locked ? (
+          <section aria-label="Access status">
+            <p role="status">
+              {RESTRICTED_RECORD_LINES.map((line, i) => (
+                <>
+                  {i > 0 && <br />}
+                  {line}
+                </>
+              ))}
+            </p>
+          </section>
+        ) : (
+          entity.description && (
+            <section aria-label="Description">
+              {longParagraphsEn.length > 1 ? (
+                /* Multi-paragraph: keep the whole field in one [data-i18n] element
+                   (the #20 swap replaces textContent wholesale) and let CSS honour
+                   the authored blank lines. */
+                <p
+                  class="entity-doc__prose"
+                  data-i18n
+                  data-i18n-en={entity.description.en}
+                  data-i18n-ru={entity.description.ru}
+                >
+                  {t(entity.description, "en")}
+                </p>
+              ) : (
+                <p
+                  data-i18n
+                  data-i18n-en={entity.description.en}
+                  data-i18n-ru={entity.description.ru}
+                >
+                  {t(entity.description, "en")}
+                </p>
+              )}
+            </section>
+          )
+        )
+      }
+
+      <nav aria-label="Related records">
+        <h2>Related records</h2>
+        {
+          relations.length === 0 ? (
+            <p>No related records.</p>
+          ) : (
+            <ul>
+              {relations.map((relation) =>
+                relation.resolved ? (
+                  <li>
+                    <span data-relation={relation.type}>{relation.type}</span>
+                    {": "}
+                    <a
+                      href={relation.entity.url}
+                      data-i18n
+                      data-i18n-en={relation.entity.name.en}
+                      data-i18n-ru={relation.entity.name.ru}
+                    >
+                      {t(relation.entity.name, "en")}
+                    </a>
+                  </li>
+                ) : (
+                  <li>
+                    <span data-relation={relation.type}>{relation.type}</span>
+                    {": "}
+                    <span data-unresolved={relation.reason}>
+                      {relation.target} (unresolved: {relation.reason})
+                    </span>
+                  </li>
+                ),
+              )}
+            </ul>
+          )
+        }
+      </nav>
+
+      {
+        referencedBy.length > 0 && (
+          <nav aria-label="Referenced by">
+            <h2>Referenced by</h2>
+            <ul>
+              {referencedBy.map((edge) => (
+                <li>
+                  <a
+                    href={edge.from.url}
+                    data-i18n
+                    data-i18n-en={edge.from.name.en}
+                    data-i18n-ru={edge.from.name.ru}
+                  >
+                    {t(edge.from.name, "en")}
+                  </a>
+                  {" — "}
+                  <span data-relation={edge.type}>{edge.type}</span>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+
+      <section aria-label="Media">
+        <h2>Media</h2>
+        {
+          media.length === 0 ? (
+            <p>No media on record.</p>
+          ) : (
+            <ul>
+              {media.map((item) => (
+                <li>
+                  <dl>
+                    <dt>Reference</dt>
+                    <dd>
+                      <code>{item.id}</code>
+                    </dd>
+                    {item.role && (
+                      <>
+                        <dt>Role</dt>
+                        <dd>{item.role}</dd>
+                      </>
+                    )}
+                    {item.alt && (
+                      <>
+                        <dt>Alt text</dt>
+                        <dd
+                          data-i18n
+                          data-i18n-en={item.alt.en}
+                          data-i18n-ru={item.alt.ru}
+                        >
+                          {t(item.alt, "en")}
+                        </dd>
+                      </>
+                    )}
+                    {item.caption && (
+                      <>
+                        <dt>Caption</dt>
+                        <dd
+                          data-i18n
+                          data-i18n-en={item.caption.en}
+                          data-i18n-ru={item.caption.ru}
+                        >
+                          {t(item.caption, "en")}
+                        </dd>
+                      </>
+                    )}
+                  </dl>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
+
+      {
+        entity.tags && entity.tags.length > 0 && (
+          <section aria-label="Tags">
+            <h2>Tags</h2>
+            <ul>
+              {entity.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <nav aria-label="Site">
+        <a href="/database">Database Index</a>
+      </nav>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  /* The single functional style in this file: preserve the blank lines the
+     author put between paragraphs of a long description. The #20 locale swap
+     replaces an element's textContent wholesale, so a multi-paragraph field
+     must live in ONE [data-i18n] element — `pre-line` is what makes that one
+     element still read as paragraphs. Not visual design. */
+  .entity-doc__prose {
+    white-space: pre-line;
+  }
+</style>
