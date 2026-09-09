@@ -1,0 +1,6 @@
+{
+  "id": "station.alpha",
+  "type": "station",
+  "slug": "shared",
+  "name": { "ru": "Альфа", "en": "Alpha" }
+}

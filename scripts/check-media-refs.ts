@@ -8,16 +8,21 @@
  * A `MediaReference.id` (already shape-checked by the #16 Zod schema: non-blank,
  * not an inline filename with an asset extension) resolves when it is EITHER:
  *
- *   1. a **media-entity id** — matches `media.<slug>` and a `type: "media"` entity
- *      under `data/media/` declares exactly that id; or
- *   2. an **asset path** — a repo-relative path under `public/media/` that matches
- *      an actual file there (with or without an extension appended).
+ *   1. a **media-entity reference** — the id starts with `media.` (unambiguously a
+ *      reference to the `media` entity type, whose ids are `media.<slug>`). It
+ *      MUST match a real `data/media/` entity id exactly. A near-miss the #16
+ *      schema still accepts as a `media.id` (`media.Ghost_Portrait` — capital,
+ *      underscore) is a typo, and is reported as unresolved — it does NOT fall
+ *      through to the asset-path branch.
+ *   2. an **asset path** — any other value: a repo-relative path under
+ *      `public/media/` that matches an actual file there (with or without an
+ *      extension appended).
  *
  * TODO(media-pipeline): real asset resolution for asset-path refs depends on the
  * media pipeline / manifest that is not in the repo yet (`public/media/` holds
  * only `.gitkeep`). Until real assets land, an otherwise well-formed asset-path
  * ref is accepted "by format only" and counted — the run prints a NOTE — rather
- * than failing every seed entity that carries a portrait. A `media.<slug>` ref is
+ * than failing every seed entity that carries a portrait. A `media.` ref is
  * always fully resolved (check 1) because that is a cross-file check we can do
  * today.
  */
@@ -30,8 +35,8 @@ import { MEDIA_ASSET_EXTENSIONS } from "../src/core/entities/schemas.ts";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** `media.<slug>` — the id shape of a `type: "media"` entity (`<type>.<slug>`). */
-const MEDIA_ENTITY_ID = /^media\.[a-z0-9]+(?:-[a-z0-9]+)*$/;
+/** A ref beginning with this prefix is meant to be a `media` entity reference. */
+const MEDIA_ENTITY_PREFIX = "media.";
 
 const ASSET_EXTENSION = new RegExp(`\\.(?:${MEDIA_ASSET_EXTENSIONS.join("|")})$`, "i");
 
@@ -98,14 +103,15 @@ export function resolveMediaRef(id: string, ctx: MediaRefContext): MediaRefResul
     };
   }
 
-  if (MEDIA_ENTITY_ID.test(value)) {
+  // A ref that starts with `media.` is unambiguously a media-entity reference and
+  // must resolve to a real `data/media/` entity — no fall-through to asset paths,
+  // so a typo the #16 schema still accepts (`media.Ghost_Portrait`) is caught.
+  if (value.startsWith(MEDIA_ENTITY_PREFIX)) {
     return ctx.mediaEntityIds.has(value)
       ? { ok: true }
       : {
           ok: false,
-          reason:
-            `media reference "${value}" looks like a media-entity id but no ` +
-            "`data/media/` entity declares it",
+          reason: `media reference "${value}" does not match any \`data/media/\` entity id`,
         };
   }
 
@@ -125,7 +131,7 @@ export function resolveMediaRef(id: string, ctx: MediaRefContext): MediaRefResul
   return { ok: true, formatOnly: true };
 }
 
-export { MEDIA_ENTITY_ID, ASSET_EXTENSION, REPO_ROOT };
+export { MEDIA_ENTITY_PREFIX, ASSET_EXTENSION, REPO_ROOT };
 
 /*
  * This module is a pure library. The Implementation Plan §3 `scripts/check-media-refs.ts`

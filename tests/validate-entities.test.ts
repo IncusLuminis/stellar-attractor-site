@@ -70,6 +70,22 @@ describe("validateEntities — Technical Architecture §12 failure modes", () =>
     expect(codes).toContain("duplicate-slug");
   });
 
+  it("scopes slug uniqueness to the DECLARED type, not the crawl directory", () => {
+    // A misfiled `station` file in data/people/ sharing a slug with a real
+    // `person` must NOT be reported as a duplicate slug (regression: keyed on dir).
+    const falsePositive = run("slug-scope");
+    expect(falsePositive.codes).toContain("wrong-collection-dir");
+    expect(falsePositive.codes).not.toContain("duplicate-slug");
+
+    // Two genuine same-`type` entities misfiled into different dirs MUST still clash.
+    const missed = run("slug-scope-split");
+    expect(missed.codes).toContain("duplicate-slug");
+    expect(missed.codes).not.toContain("duplicate-id");
+    expect(missed.violations.find((v) => v.code === "duplicate-slug")?.message).toMatch(
+      /"station" entities/,
+    );
+  });
+
   it("catches an unknown entity type", () => {
     const { violations, codes } = run("unknown-type");
     expect(codes).toContain("unknown-type");
@@ -115,6 +131,16 @@ describe("validateEntities — Technical Architecture §12 failure modes", () =>
     expect(media?.message).toMatch(/extension|filename/i);
   });
 
+  it("catches a typo'd media-entity id instead of accepting it format-only", () => {
+    // `media.Ghost_Portrait` — capital + underscore. The #16 Zod schema accepts it
+    // as a media.id; it must NOT fall through to the asset-path branch (regression).
+    const { violations, codes } = run("media-entity-typo");
+    expect(codes).toContain("unresolved-media-ref");
+    expect(violations.find((v) => v.code === "unresolved-media-ref")?.message).toMatch(
+      /media\.Ghost_Portrait.+data\/media/,
+    );
+  });
+
   it("catches a file that is not valid JSON", () => {
     const { codes } = run("invalid-json");
     expect(codes).toContain("invalid-json");
@@ -151,6 +177,15 @@ describe("resolveMediaRef — asset-path resolution", () => {
       true,
     );
     expect(resolveMediaRef("media.zane", base()).ok).toBe(false);
+  });
+
+  it("never falls a `media.` ref through to the format-only asset-path branch", () => {
+    // Even with an empty asset index (the format-only path), a `media.` typo fails.
+    for (const typo of ["media.Ghost_Portrait", "media.zane portrait", "media."]) {
+      const result = resolveMediaRef(typo, base());
+      expect(result.ok, typo).toBe(false);
+      expect(result.formatOnly, typo).toBeUndefined();
+    }
   });
 
   it("resolves an asset path against a populated asset index", () => {

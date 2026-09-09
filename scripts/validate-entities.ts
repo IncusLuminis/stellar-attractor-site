@@ -35,7 +35,7 @@
  */
 
 import { type Dirent, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { argv, exit } from "node:process";
 import { fileURLToPath } from "node:url";
 
@@ -91,6 +91,8 @@ interface LoadedEntity {
   slug: string | null;
   /** `raw.type` verbatim. */
   declaredType: unknown;
+  /** `raw.type` when it is one of the known entity types, else `null`. */
+  declaredTypeKnown: EntityType | null;
   /** typed entity when the schema passed, else `null`. */
   parsed: Record<string, unknown> | null;
 }
@@ -177,9 +179,12 @@ export function validateEntities(options: ValidateOptions = {}): ValidateResult 
       const id = nonBlankString(raw.id);
       const slug = nonBlankString(raw.slug);
       const declaredType = raw.type;
-      const knownType =
+      const declaredTypeKnown: EntityType | null =
         typeof declaredType === "string" &&
-        (ENTITY_TYPES as readonly string[]).includes(declaredType);
+        (ENTITY_TYPES as readonly string[]).includes(declaredType)
+          ? (declaredType as EntityType)
+          : null;
+      const knownType = declaredTypeKnown !== null;
 
       if (!knownType) {
         violations.push({
@@ -245,6 +250,7 @@ export function validateEntities(options: ValidateOptions = {}): ValidateResult 
         id,
         slug,
         declaredType,
+        declaredTypeKnown,
         parsed: parse.success ? (parse.data as Record<string, unknown>) : null,
       });
     }
@@ -266,7 +272,12 @@ export function validateEntities(options: ValidateOptions = {}): ValidateResult 
   const bySlug = new Map<string, LoadedEntity[]>();
   for (const entity of loaded) {
     if (entity.id) groupInto(byId, entity.id, entity);
-    if (entity.slug) groupInto(bySlug, `${entity.dirType}/${entity.slug}`, entity);
+    // Slug uniqueness is scoped to the entity's DECLARED `type`, not the directory
+    // it was crawled from — a misfiled file must not collide with a real entity of
+    // the crawl dir's type, and two same-type files misfiled apart must still clash.
+    if (entity.slug && entity.declaredTypeKnown) {
+      groupInto(bySlug, `${entity.declaredTypeKnown}/${entity.slug}`, entity);
+    }
   }
 
   for (const [id, entities] of byId) {
@@ -413,19 +424,39 @@ function argFor(flag: string): string | undefined {
   return idx >= 0 ? argv[idx + 1] : undefined;
 }
 
-if (import.meta.main) {
+/**
+ * Is this module the process entry point? `import.meta.main` is Node ≥ 22.18 /
+ * ≥ 20.19; on anything older it is `undefined` and we fall back to comparing the
+ * module URL with `argv[1]` so the CLI can never silently no-op (which would let
+ * `prebuild` pass with validation bypassed).
+ */
+function isMainModule(): boolean {
+  if (typeof import.meta.main === "boolean") return import.meta.main;
+  const entry = argv[1];
+  if (!entry) return false;
+  try {
+    return fileURLToPath(import.meta.url) === resolve(entry);
+  } catch {
+    return false;
+  }
+}
+
+/** Media-related violations: `unresolved-media-ref` plus any schema issue on a `media[...]` field. */
+function isMediaViolation(v: Violation): boolean {
+  return v.code === "unresolved-media-ref" || /^media[.[]/.test(v.field ?? "");
+}
+
+if (isMainModule()) {
   // `--media-only` backs `npm run check:media-refs` (Implementation Plan §3):
-  // same crawl, report narrowed to media-reference resolution.
+  // same crawl, report narrowed to media-reference violations (schema-level and
+  // cross-file). It is a focused view of the same gate, not a weaker one.
   const mediaOnly = argv.includes("--media-only");
   const full = validateEntities({
     dataDir: argFor("--data"),
     mediaDir: argFor("--media"),
   });
   const result = mediaOnly
-    ? {
-        ...full,
-        violations: full.violations.filter((v) => v.code === "unresolved-media-ref"),
-      }
+    ? { ...full, violations: full.violations.filter(isMediaViolation) }
     : full;
 
   if (result.violations.length > 0) {

@@ -1,0 +1,6 @@
+{
+  "id": "station.beta",
+  "type": "station",
+  "slug": "shared",
+  "name": { "ru": "Бета", "en": "Beta" }
+}

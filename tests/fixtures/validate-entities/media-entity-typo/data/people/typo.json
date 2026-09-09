@@ -1,0 +1,7 @@
+{
+  "id": "person.typo",
+  "type": "person",
+  "slug": "typo",
+  "name": { "ru": "Опечатка", "en": "Typo" },
+  "media": [{ "id": "media.Ghost_Portrait" }]
+}
