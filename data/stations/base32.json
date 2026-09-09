@@ -1,0 +1,36 @@
+{
+  "id": "station.base32",
+  "type": "station",
+  "slug": "base32",
+  "name": {
+    "en": "Base #32",
+    "ru": "База №32"
+  },
+  "shortDescription": {
+    "en": "One of the Commonwealth's foremost research stations for assessing prospective worlds; an autonomous deep-space centre whose habitability verdicts are treated as final, and the home of Zane's scientific community.",
+    "ru": "Одна из ведущих исследовательских станций Содружества по оценке перспективных миров; автономный центр в дальнем космосе, чьи заключения о пригодности миров считаются окончательными, и дом научного сообщества, к которому принадлежит Зейн."
+  },
+  "description": {
+    "en": "Base #32 is one of the Commonwealth of Independent Planets' leading research centres for the comprehensive assessment of prospective worlds. Its expeditions work mainly in little-studied regions of the Galaxy, carrying out the detailed on-site study of worlds first located by automated probes; over centuries its specialists have built one of the most authoritative scientific schools in planetology, the ecology of extraterrestrial worlds and the assessment of planets for long-term human habitation, and its conclusions are traditionally treated as the final scientific word on whether a world should be settled. It belongs to the Commonwealth's corps of autonomous scientific stations — remote complexes far beyond the populated regions — and it acts as a regional expedition centre, coordinating the study of an assigned region of the Galaxy across many decades, running field expeditions and maintaining long-term observation catalogues. It is built to stay fully operational for years with no contact with the rest of the Commonwealth, with its own power, manufacturing, medical and scientific infrastructure. Research here is treated as a continuous chain handed between generations, and the arrival of a ship is a major event in the life of the station.",
+    "ru": "База №32 — один из ведущих исследовательских центров Содружества Независимых Планет по комплексной оценке перспективных миров. Её экспедиции работают преимущественно в малоизученных районах Галактики, проводя детальное исследование на месте тех миров, что впервые обнаружены автоматическими зондами; за столетия её специалисты сформировали одну из наиболее авторитетных научных школ в планетологии, экологии внеземных миров и оценке планет для долговременного проживания человека, а её заключения традиционно считаются окончательной научной экспертизой при решении вопроса об освоении мира. Она входит в корпус автономных научных станций Содружества — удалённых комплексов далеко за пределами населённых регионов — и выполняет роль регионального экспедиционного центра, десятилетиями координируя изучение закреплённого района Галактики, обеспечивая работу полевых экспедиций и ведя долговременные каталоги наблюдений. Она рассчитана на многолетнюю работу в полном отрыве от остального Содружества, располагая собственными энергетическими, производственными, медицинскими и научными системами. Исследования здесь ведутся как непрерывная цепь, передаваемая от поколения к поколению, а прибытие корабля становится значительным событием в жизни станции."
+  },
+  "clearance": "guest",
+  "media": [
+    {
+      "id": "stations/base32",
+      "role": "hero",
+      "alt": {
+        "en": "Exterior view of Base #32, a deep-space research station.",
+        "ru": "Внешний вид Базы №32 — исследовательской станции в дальнем космосе."
+      }
+    }
+  ],
+  "relations": [
+    { "type": "supervised_by", "target": "person.illar-arden" },
+    { "type": "hosts", "target": "person.zane" },
+    { "type": "supports", "target": "vessel.stellar-nomad" },
+    { "type": "conducted", "target": "mission.exodus" },
+    { "type": "studies", "target": "location.fomalhaut" }
+  ],
+  "tags": ["research-station", "commonwealth", "expedition-centre", "planetology", "habitability-assessment", "autonomous-station"]
+}

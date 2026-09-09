@@ -1,0 +1,34 @@
+{
+  "id": "person.illar-arden",
+  "type": "person",
+  "slug": "illar-arden",
+  "name": {
+    "en": "Admiral Illar Arden",
+    "ru": "Адмирал Иллар Арден"
+  },
+  "shortDescription": {
+    "en": "Fleet Admiral and senior executive authority behind Base #32 and its expeditions; the man who shielded Zane after the first-contact incident and later returned in person to bring him home.",
+    "ru": "Адмирал флота и высшее руководящее лицо организации, стоящей за Базой №32 и её экспедициями; человек, который защитил Зейна после инцидента первого контакта и годы спустя лично вернулся, чтобы забрать его домой."
+  },
+  "description": {
+    "en": "Fleet Admiral Illar Arden is the strategic centre of gravity of the organisation behind Base #32: he defines its long-term direction, keeps its independent projects coherent, and accepts personal responsibility for its major decisions. He deliberately surrounds himself with specialists who know more than he does in their fields and expects them to challenge him; he begins every important decision from the mission rather than from a preferred solution, separates fact from opinion, and holds that leadership means responsibility rather than authority. He speaks deliberately and economically, and asks more questions than he answers. Zane reports to him. Their history runs back decades: Arden kept the first-contact incident from ending Zane's career in permanent disgrace, and years later he personally led the task force that returned to the edge of explored space to rescue the man he had once sent there. Neither calls the other a friend and neither calls the other an enemy; their exchanges are marked by restraint and mutual respect. Those who know them both have long noted that the two men have almost identical voices — a fact neither has ever explained.",
+    "ru": "Адмирал флота Иллар Арден — стратегический центр тяжести организации, стоящей за Базой №32: он определяет её долгосрочное направление, удерживает согласованность между её независимыми проектами и принимает личную ответственность за её ключевые решения. Он сознательно окружает себя специалистами, которые в своих областях знают больше него, и ждёт от них возражений; любое важное решение он начинает с миссии, а не с готового ответа, отделяет факты от мнений и считает, что руководство — это ответственность, а не власть. Говорит он размеренно и экономно и задаёт больше вопросов, чем даёт ответов. Зейн подчиняется ему. Их история тянется на десятилетия: Арден не дал инциденту первого контакта навсегда покрыть Зейна позором, а годы спустя лично возглавил группу, вернувшуюся на край освоенного пространства, чтобы спасти человека, которого он когда-то туда отправил. Ни один не называет другого другом и ни один — врагом; их разговоры отмечены сдержанностью и взаимным уважением. Те, кто знает обоих, давно заметили, что у этих двоих почти одинаковые голоса, — и ни один из них никогда этого не объяснял."
+  },
+  "media": [
+    {
+      "id": "portraits/illar-arden",
+      "role": "portrait",
+      "alt": {
+        "en": "Portrait of Fleet Admiral Illar Arden.",
+        "ru": "Портрет адмирала флота Иллара Ардена."
+      }
+    }
+  ],
+  "relations": [
+    { "type": "commands", "target": "person.zane" },
+    { "type": "rescued", "target": "person.zane" },
+    { "type": "oversees", "target": "station.base32" },
+    { "type": "authorized", "target": "mission.exodus" }
+  ],
+  "tags": ["fleet-admiral", "executive-authority", "expedition-fleet", "command", "founding-member"]
+}

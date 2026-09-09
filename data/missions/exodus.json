@@ -1,0 +1,27 @@
+{
+  "id": "mission.exodus",
+  "type": "mission",
+  "slug": "exodus",
+  "name": {
+    "en": "Stellar Attractor Expedition",
+    "ru": "Экспедиция к Звёздному Аттрактору"
+  },
+  "shortDescription": {
+    "en": "The failed expedition to the Fomalhaut system in search of the phenomenon later called the Stellar Attractor. Filed under the seed identifier \"exodus\" from the project's architecture plan.",
+    "ru": "Провалившаяся экспедиция в систему Фомальгаута на поиски явления, позже названного Звёздным Аттрактором. Хранится под рабочим идентификатором «exodus» из архитектурного плана проекта."
+  },
+  "description": {
+    "en": "This mission is the expedition that travelled to the Fomalhaut system in search of the phenomenon later known as the Stellar Attractor. By the time it arrived, Zane had already been serving alone at the system's research outpost for several years; assigned only as its caretaker, he became an indispensable member of the expedition because no one knew the system better. The expedition ultimately failed — the Stellar Attractor was destroyed before its nature could be understood — and once it was over the expedition departed Fomalhaut while Zane stayed behind. It would be roughly twenty years before a task force under Admiral Illar Arden returned to that edge of explored space.\n\nProvenance and open decisions: the expedition itself is canon (Zane's personnel file — \"Long-Term Memory / Projects: Stellar Attractor Expedition\", and the Kellan and Brown relationship sections). The identifier \"exodus\" is the working label from the Implementation Plan (§4) / Technical Architecture (§45), not a canon name. The restricted clearance reflects this expedition's own record: a frontier operation that ended in failure, with the phenomenon it was sent to study destroyed before its nature could be understood and the findings around it held closely. (Zane's personnel file also lists a separate \"First Contact Expedition\"; whether Phase 4 splits this single seed entity into two missions is flagged for the Product Owner.)",
+    "ru": "Эта миссия — экспедиция, отправившаяся в систему Фомальгаута на поиски явления, позже названного Звёздным Аттрактором. К моменту её прибытия Зейн уже несколько лет в одиночку нёс службу на исследовательской станции системы; назначенный лишь её смотрителем, он стал незаменимым участником экспедиции, потому что никто не знал систему лучше него. Экспедиция в итоге провалилась — Аттрактор был уничтожен прежде, чем удалось понять его природу, — и по её завершении экспедиция покинула Фомальгаут, а Зейн остался. Пройдёт около двадцати лет, прежде чем группа под командованием адмирала Иллара Ардена вернётся на этот край освоенного пространства.\n\nПроисхождение и открытые вопросы: сама экспедиция — это канон (личное дело Зейна: «Долговременная память / Проекты: Экспедиция к Звёздному Аттрактору», а также разделы об отношениях с Келланом и Брауном). Идентификатор «exodus» — рабочее обозначение из плана реализации (§4) и технической архитектуры (§45), а не каноническое название. Ограниченный уровень доступа отражает собственную историю этой экспедиции: операция на фронтире, закончившаяся неудачей, когда явление, ради которого её отправили, было уничтожено прежде, чем удалось понять его природу, а связанные с ним данные остались закрытыми. (В личном деле Зейна отдельно указана и «Экспедиция первого контакта»; вопрос о том, разделять ли на четвёртом этапе эту единую сущность на две миссии, вынесен на решение владельца продукта.)"
+  },
+  "clearance": "restricted",
+  "relations": [
+    { "type": "occurred_at", "target": "location.fomalhaut" },
+    { "type": "origin", "target": "station.base32" },
+    { "type": "conducted_by", "target": "station.base32" },
+    { "type": "authorized_by", "target": "person.illar-arden" },
+    { "type": "participant", "target": "person.zane" },
+    { "type": "used_vessel", "target": "vessel.stellar-nomad" }
+  ],
+  "tags": ["expedition", "stellar-attractor", "fomalhaut", "failed-mission", "classified-findings", "restricted", "provisional-name"]
+}
