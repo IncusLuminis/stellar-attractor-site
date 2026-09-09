@@ -62,14 +62,13 @@ const longParagraphsEn = entity.description ? t(entity.description, "en").split(
 
   <main>
     <article
-      lang="en"
       data-entity-id={entity.id}
       data-entity-type={entity.type}
       data-system={system}
     >
       <header>
         <p>
-          <span data-i18n data-i18n-en={entity.type} data-i18n-ru={entity.type}>{entity.type}</span>
+          <span>{entity.type}</span>
           {" · "}
           <code>{entity.id}</code>
         </p>
