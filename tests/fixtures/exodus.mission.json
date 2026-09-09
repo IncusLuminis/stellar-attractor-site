@@ -1,0 +1,19 @@
+{
+  "id": "mission.exodus",
+  "type": "mission",
+  "slug": "exodus",
+  "name": {
+    "ru": "Исход",
+    "en": "Exodus"
+  },
+  "shortDescription": {
+    "ru": "Эвакуационная миссия, в которой участвовал Зейн до реконструкции.",
+    "en": "The evacuation mission Zane took part in before his reconstruction."
+  },
+  "clearance": "authorized",
+  "tags": ["mission", "evacuation"],
+  "relations": [
+    { "type": "had_participant", "target": "person.zane" },
+    { "type": "departed_from", "target": "station.base32" }
+  ]
+}

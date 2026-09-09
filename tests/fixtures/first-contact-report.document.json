@@ -1,0 +1,20 @@
+{
+  "id": "document.first-contact-report",
+  "type": "document",
+  "slug": "first-contact-report",
+  "name": {
+    "ru": "Отчёт о первом контакте",
+    "en": "First contact report"
+  },
+  "shortDescription": {
+    "ru": "Архивный документ с намеренно висящими ссылками — для проверки мягкой деградации резолвера.",
+    "en": "An archive document with intentionally dangling links — exercises the resolver's graceful degradation."
+  },
+  "clearance": "restricted",
+  "tags": ["document", "first-contact"],
+  "relations": [
+    { "type": "concerns", "target": "person.zane" },
+    { "type": "concerns", "target": "mission.ghost" },
+    { "type": "filed_under", "target": "not a real id" }
+  ]
+}
