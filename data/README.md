@@ -2,8 +2,11 @@
 
 The universe: repo-managed, version-controlled entity JSON — `people/`,
 `vessels/`, `stations/`, `locations/`, `missions/`, `events/`, `documents/`,
-`science/`, `astronav-layer/`. Schema-validated by `scripts/validate-entities.ts`
-in CI and at build time. Implementation Plan §3, §4. Seed set authored in #16 / #22.
+`science/`, `astronav-layer/`. Schema-validated at build time by the Astro
+content collections (`src/content.config.ts`, which mounts the merged #16 Zod
+schemas); `scripts/validate-entities.ts` adds cross-file referential-integrity
+checks once #18 lands (today it is still a placeholder no-op). Implementation
+Plan §3, §4. Seed set authored in #16 / #22.
 
 ## Phase 1 seed set (#22)
 
@@ -114,14 +117,23 @@ faithful translation, not a drifting paraphrase.
 - on an expedition the commander has final authority over safety, the science
   programme stays with its own leader — §"Принятие решений".
 - Base #32 runs field expeditions that such a vessel would support — World
-  Context §45; expedition-bases.md.
+  Context §45; expedition-bases.md. The Academy/station sets the science
+  programme, the Fleet provides the ship (expedition-fleet.md §"Отношения с
+  Академией наук"), so the station↔vessel edge is `supports` / `supported_by`,
+  not `operates`.
 - travelled to the Fomalhaut system for the Stellar Attractor expedition —
   Zane.md, "Relationship with Commander Marcus Kellan".
 - **Name not in canon.** No individual Fleet vessel is named anywhere in the
-  bible. "Stellar Nomad" is the seed identifier from Implementation Plan §4 /
+  bible. "Stellar Nomad" is the working identifier from Implementation Plan §4 /
   Technical Architecture §45. Recorded in the entity's own `description` and
   tagged `provisional-name`. Human decision needed: ratify the name into canon or
   rename to a canonical term.
+- **No `person.zane` ↔ vessel edge.** Canon is explicit that Zane was already
+  alone at the Fomalhaut outpost for years before the expedition arrived and
+  "remained behind" when it left, retrieved ~20 years later by Admiral Arden's
+  task force — not the expedition vessel (Zane.md, Kellan/Brown sections). The
+  vessel therefore has no direct relation to Zane; person↔vessel is left
+  unlinked rather than seeded with a false edge.
 - `clearance: guest`.
 
 **`location.fomalhaut`** — `personas/HR files/Zane.md` + `personas/HR files/Brown.md`
@@ -136,8 +148,10 @@ faithful translation, not a drifting paraphrase.
 - "expedition to the remote Fomalhaut outpost" — Brown.md (line ~383).
 - within Base #32's region of study — inference from World Context §45 +
   Zane being Base #32 personnel; stated as such.
-- RU/EN search equivalence ("Фомальгаут" / "Fomalhaut") — Implementation Plan
-  §far-navigation; Technical Architecture §13.
+- RU/EN name pair «Фомальгаут» / «Fomalhaut» must resolve to this one entity in
+  site search — Implementation Plan (routing §) / Technical Architecture §13.
+  This is an application requirement, not lore, so it lives here and not in the
+  entity `description`.
 - **Astronomical parameters are real-world, not canon** (Alpha Piscis Austrini,
   ~25 ly, A-type main sequence, mag ~1.2, ~1.9 M☉, ~440 Myr, wide multiple
   system, debris disk, JWST 2023 nested rings). The bible gives no astronomy for
@@ -159,55 +173,68 @@ faithful translation, not a drifting paraphrase.
   David Brown".
 - task force under Admiral Arden returned to rescue Zane — Zane.md,
   "Relationship with Admiral Illar Arden" and "…with Commander Marcus Kellan".
-- **Slug/id "exodus" is not a canon name** — it is the seed label from
+- `authorized_by` → `person.illar-arden` — **inference.** Canon shows Arden
+  *sending* Zane to the edge of known space and personally leading the *return*
+  (Zane.md), and every named participant (Zane, Kellan, Brown, Marchand) reports
+  to Admiral Arden. Canon does not say Arden directed the Stellar Attractor
+  Expedition itself, so the softened verb `authorized_by` is used rather than
+  `directed_by`/`led`.
+- **Slug/id "exodus" is not a canon name** — it is the working label from
   Implementation Plan §4 / Technical Architecture §45. Recorded in the entity's
   own `description`, tagged `provisional-name`.
 - `clearance: restricted` — the deliberate non-`guest` seed for Phase 4's
-  restricted-state work. Justification: Zane's first-contact circumstances are
-  explicitly "classified" and their disclosure is escalation-only (Zane.md
-  Background; Decision Authority → "Must Be Escalated"). **Open decision for the
-  Product Owner:** canon treats "First Contact Expedition" and "Stellar Attractor
-  Expedition" as two separate projects (both in Zane.md Projects). The 6-entity
-  seed has one mission slot; a later phase may split this into two entities.
+  restricted-state work. Justification stands on the Stellar Attractor
+  Expedition's *own* record: a frontier operation that ended in failure, with the
+  phenomenon it was sent to study destroyed before its nature could be understood
+  and the findings around it held closely (Zane.md, "Relationship with Commander
+  Marcus Kellan" / "…with Colonel David Brown"). The `first-contact` tag (which
+  belonged to the *separate* First Contact Expedition) was dropped in favour of
+  `classified-findings`.
+- **Open decision for the Product Owner:** Zane.md lists "First Contact
+  Expedition" and "Stellar Attractor Expedition" as two separate projects. The
+  6-entity seed has one mission slot and this entity is the Stellar Attractor
+  Expedition; a later phase may add the First Contact Expedition as its own
+  entity. One mission entity is fine for the Phase 1 seed.
 
 ### Relation graph (all targets are one of the six; every class connected)
 
 ```
-person.zane        --reports_to-->       person.illar-arden
-person.zane        --rescued_by-->        person.illar-arden
-person.zane        --assigned_to-->       station.base32
-person.zane        --served_at-->         location.fomalhaut
-person.zane        --participated_in-->   mission.exodus
-person.zane        --traveled_aboard-->   vessel.stellar-nomad
+person.zane          --reports_to-->      person.illar-arden
+person.zane          --rescued_by-->      person.illar-arden
+person.zane          --assigned_to-->     station.base32
+person.zane          --served_at-->       location.fomalhaut
+person.zane          --participated_in--> mission.exodus
 
-person.illar-arden --commands-->          person.zane
-person.illar-arden --rescued-->           person.zane
-person.illar-arden --oversees-->          station.base32
-person.illar-arden --directed-->          mission.exodus
+person.illar-arden   --commands-->        person.zane
+person.illar-arden   --rescued-->         person.zane
+person.illar-arden   --oversees-->        station.base32
+person.illar-arden   --authorized-->      mission.exodus
 
-station.base32     --supervised_by-->     person.illar-arden
-station.base32     --hosts-->             person.zane
-station.base32     --operates-->          vessel.stellar-nomad
-station.base32     --conducted-->         mission.exodus
-station.base32     --studies-->           location.fomalhaut
+station.base32       --supervised_by-->   person.illar-arden
+station.base32       --hosts-->           person.zane
+station.base32       --supports-->        vessel.stellar-nomad
+station.base32       --conducted-->       mission.exodus
+station.base32       --studies-->         location.fomalhaut
 
-vessel.stellar-nomad --operated_by-->     station.base32
+vessel.stellar-nomad --supported_by-->    station.base32
 vessel.stellar-nomad --assigned_to-->     mission.exodus
 vessel.stellar-nomad --traveled_to-->     location.fomalhaut
-vessel.stellar-nomad --carried-->         person.zane
 
-location.fomalhaut --site_of-->           mission.exodus
-location.fomalhaut --former_post_of-->    person.zane
-location.fomalhaut --studied_by-->        station.base32
-location.fomalhaut --visited_by-->        vessel.stellar-nomad
+location.fomalhaut   --site_of-->         mission.exodus
+location.fomalhaut   --former_post_of-->  person.zane
+location.fomalhaut   --studied_by-->      station.base32
+location.fomalhaut   --visited_by-->      vessel.stellar-nomad
 
-mission.exodus     --occurred_at-->       location.fomalhaut
-mission.exodus     --origin-->            station.base32
-mission.exodus     --conducted_by-->      station.base32
-mission.exodus     --directed_by-->       person.illar-arden
-mission.exodus     --participant-->       person.zane
-mission.exodus     --used_vessel-->       vessel.stellar-nomad
+mission.exodus       --occurred_at-->     location.fomalhaut
+mission.exodus       --origin-->          station.base32
+mission.exodus       --conducted_by-->    station.base32
+mission.exodus       --authorized_by-->   person.illar-arden
+mission.exodus       --participant-->     person.zane
+mission.exodus       --used_vessel-->     vessel.stellar-nomad
 ```
 
-All ten class pairs (person, vessel, station, location, mission) are linked, in
-both directions where natural.
+27 relations, zero dangling — every `target` is one of the six. All five entity
+classes (person, vessel, station, location, mission) participate and are
+interconnected; the only class pair without a direct edge is person↔vessel,
+deliberately (canon does not support one — see the `vessel.stellar-nomad` notes
+above).

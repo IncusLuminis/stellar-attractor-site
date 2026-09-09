@@ -28,7 +28,7 @@
   "relations": [
     { "type": "supervised_by", "target": "person.illar-arden" },
     { "type": "hosts", "target": "person.zane" },
-    { "type": "operates", "target": "vessel.stellar-nomad" },
+    { "type": "supports", "target": "vessel.stellar-nomad" },
     { "type": "conducted", "target": "mission.exodus" },
     { "type": "studies", "target": "location.fomalhaut" }
   ],

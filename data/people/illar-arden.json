@@ -28,7 +28,7 @@
     { "type": "commands", "target": "person.zane" },
     { "type": "rescued", "target": "person.zane" },
     { "type": "oversees", "target": "station.base32" },
-    { "type": "directed", "target": "mission.exodus" }
+    { "type": "authorized", "target": "mission.exodus" }
   ],
   "tags": ["fleet-admiral", "executive-authority", "expedition-fleet", "command", "founding-member"]
 }

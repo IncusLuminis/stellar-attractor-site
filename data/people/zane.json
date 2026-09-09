@@ -30,8 +30,7 @@
     { "type": "rescued_by", "target": "person.illar-arden" },
     { "type": "assigned_to", "target": "station.base32" },
     { "type": "served_at", "target": "location.fomalhaut" },
-    { "type": "participated_in", "target": "mission.exodus" },
-    { "type": "traveled_aboard", "target": "vessel.stellar-nomad" }
+    { "type": "participated_in", "target": "mission.exodus" }
   ],
   "tags": ["research-specialist", "base-32", "civil-exploration-corps", "first-contact", "cybernetic-reconstruction", "fomalhaut"]
 }
