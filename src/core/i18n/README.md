@@ -63,6 +63,25 @@ Entity/route templates render the `en` value as the element's text and add:
 `applyLocaleToDocument(locale)` reads `data-i18n-${locale}` into `textContent`.
 Elements without both attributes are skipped.
 
+## Store is a runtime singleton — do not regress this (#19 / #26)
+
+`boot.ts` is bundled + **inlined into `<head>`**. A `client:*` island such as
+`LocaleSwitch` is a **separate Vite chunk**. Astro/Vite do **not** share module
+instances across those two graphs — a plain `let current` in `store.ts` would be
+instantiated twice and the switch would never swap text when clicked (the
+island's `setLocale` fires listeners nothing subscribed to).
+
+`store.ts` therefore keeps its state on `globalThis` (`window` in the browser)
+behind a shared `EventTarget`; every accessor reads `globalThis` fresh. This is
+the problem nanostores solves — a small global was enough here and adds no dep.
+
+**When mounting `LocaleSwitch` (or any other i18n consumer):** import from
+`../core/i18n` / `../core/i18n/store` normally. Do **not** copy the store's state
+into a component-module-level variable, a Preact signal defined outside a
+component, or a nanostore — that reintroduces the split. `getLocale()` /
+`subscribe()` are already cross-chunk safe. Covered by
+`tests/i18n-store.test.ts` → "shares state across module instances".
+
 ## State-preserving switch (AC 5 & 6)
 
 `switch.ts` → `switchLocale(next, appState)` / `toggleLocale(appState)`:

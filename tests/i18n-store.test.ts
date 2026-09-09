@@ -75,4 +75,47 @@ describe("i18n — locale store (#20 AC 2 & 5)", () => {
     setLocale("ru");
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it("initLocale() reads window.location.search when no search option is given", () => {
+    window.history.replaceState({}, "", "/person/zane?lang=ru");
+    expect(initLocale()).toBe("ru");
+    expect(getLocale()).toBe("ru");
+  });
+
+  it("survives localStorage throwing on read and write (private window)", () => {
+    const getSpy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+    const setSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+
+    expect(() => initLocale({ search: "?lang=ru" })).not.toThrow();
+    expect(getLocale()).toBe("ru"); // still honoured, just not persisted
+    expect(() => setLocale("en")).not.toThrow();
+    expect(getLocale()).toBe("en");
+
+    getSpy.mockRestore();
+    setSpy.mockRestore();
+  });
+
+  it("shares state across module instances (separate Vite chunks in the build)", async () => {
+    // boot (inlined <head>) and a client island are different chunks: a plain
+    // module-level `let` would give each its own store. Simulate with resetModules.
+    vi.resetModules();
+    const chunkA = await import("../src/core/i18n/store");
+    chunkA.__resetLocaleStore();
+    chunkA.initLocale({ search: "?lang=ru" });
+
+    vi.resetModules();
+    const chunkB = await import("../src/core/i18n/store");
+
+    expect(chunkB.getLocale()).toBe("ru"); // B sees A's initLocale()
+
+    const seenByB: string[] = [];
+    chunkB.subscribe((l) => seenByB.push(l));
+    chunkA.setLocale("en"); // set via A
+    expect(chunkB.getLocale()).toBe("en"); // …observed by B
+    expect(seenByB).toEqual(["en"]); // …and B's subscriber fired
+  });
 });
