@@ -1,0 +1,48 @@
+---
+/**
+ * 404 — "RECORD NOT FOUND" (#19 AC 7; Technical Architecture §42; Implementation
+ * Plan §9). Semantic structure only; visual design is Phase 2/3.
+ *
+ * HTTP STATUS: Astro `output: "static"` emits this as `dist/404.html`. Serving
+ * it with an actual `404` status code is a HOST-CONFIG dependency — Cloudflare
+ * Pages / Netlify / GitHub Pages / `astro preview` all serve `404.html` with a
+ * 404 for unmatched paths out of the box; a bare static file server may not.
+ * There is no deploy target in this repo yet (Implementation Plan §10), so this
+ * is flagged for whoever wires deployment. The page itself is correct.
+ *
+ * The user must always retain access to navigation (§42) — hence the /database link.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocaleSwitch from "../core/i18n/LocaleSwitch";
+---
+
+<BaseLayout title="RECORD NOT FOUND — Stellar Attractor" description="The requested record does not exist in this archive.">
+  <nav aria-label="Language / Язык">
+    <LocaleSwitch client:idle />
+  </nav>
+
+  <main>
+    <article>
+      <h1 data-i18n data-i18n-en="RECORD NOT FOUND" data-i18n-ru="ЗАПИСЬ НЕ НАЙДЕНА">
+        RECORD NOT FOUND
+      </h1>
+      <p
+        data-i18n
+        data-i18n-en="The requested record does not exist in this archive, or its address has changed."
+        data-i18n-ru="Запрошенная запись отсутствует в этом архиве или её адрес изменился."
+      >
+        The requested record does not exist in this archive, or its address has changed.
+      </p>
+      <nav aria-label="Site">
+        <a
+          href="/database"
+          data-i18n
+          data-i18n-en="Return to the Database Index"
+          data-i18n-ru="Вернуться к указателю базы данных"
+        >
+          Return to the Database Index
+        </a>
+      </nav>
+    </article>
+  </main>
+</BaseLayout>

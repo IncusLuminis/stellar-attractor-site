@@ -1,0 +1,41 @@
+---
+/**
+ * SystemPlaceholder — the body of every bare system route this phase
+ * (`/astronav`, `/fleet`, `/personnel`, `/base32`, `/missions`, `/database`;
+ * #19 AC 2). `/` (cockpit) is NOT one of these — it has its own route.
+ *
+ * SEMANTIC STRUCTURE ONLY. The real system UIs land in Phases 4–7 (Astronav in
+ * #21, which replaces `/astronav` outright). This is a heading + a note so the
+ * route exists, builds, is crawlable and is reachable by back/forward now.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocaleSwitch from "../core/i18n/LocaleSwitch";
+import type { SystemId } from "../core/navigation";
+
+interface Props {
+  system: SystemId;
+  title: string;
+  phase: string;
+}
+
+const { system, title, phase } = Astro.props;
+---
+
+<BaseLayout title={`${title} — Stellar Attractor`} description={`${title} — system placeholder.`}>
+  <nav aria-label="Language / Язык">
+    <LocaleSwitch client:idle />
+  </nav>
+
+  <main>
+    <article data-system={system}>
+      <h1>{title}</h1>
+      <p>System placeholder — {phase}. This route exists so it is directly
+        addressable and crawlable now; the interactive system is not built yet.</p>
+      <nav aria-label="Site">
+        <a href="/database">Database Index</a>
+        {" · "}
+        <a href="/">Cockpit</a>
+      </nav>
+    </article>
+  </main>
+</BaseLayout>
