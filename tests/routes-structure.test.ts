@@ -56,10 +56,18 @@ describe("system routes (§7)", () => {
     });
   }
 
-  it("/astronav is a minimal placeholder (replaced by #21)", () => {
+  it("/astronav mounts the Astronav stub island (#21)", () => {
     const src = read("astronav.astro");
-    expect(src).toContain("SystemPlaceholder");
-    expect(src).toMatch(/#21/);
+    expect(src).toContain("AstronavIsland");
+    expect(src).toMatch(/client:(load|idle)/);
+    expect(src).not.toContain("SystemPlaceholder");
+  });
+
+  it("/location/[slug] mounts the Astronav stub from the #19 focus intent (#21)", () => {
+    const src = read(join("location", "[slug].astro"));
+    expect(src).toContain("AstronavIsland");
+    expect(src).toContain("focusIntentForEntity");
+    expect(src).toContain('slot="system-mount"');
   });
 });
 
