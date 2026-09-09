@@ -257,6 +257,12 @@ const longParagraphsEn = entity.description ? t(entity.description, "en").split(
         <a href="/database">Database Index</a>
       </nav>
     </article>
+
+    {/* Additive per-system mount point (#21). A spatial entity route
+       (`/location/[slug]`) drops its Astronav stub panel here, deriving a
+       focus intent from the #19 routing contract. The server-rendered record
+       above is untouched — the slot is empty for every other route. */}
+    <slot name="system-mount" />
   </main>
 </BaseLayout>
 

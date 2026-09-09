@@ -1,8 +1,44 @@
 ---
-// /astronav — MINIMAL placeholder (#19 AC 2). #21 replaces this file with the
-// real Astronav stub, which consumes the focus-intent contract from
-// src/core/navigation/ (see its README). Kept as bare as possible on purpose.
-import SystemPlaceholder from "../components/SystemPlaceholder.astro";
+// /astronav — the Astronavigation MVP stub (#21; replaces the #19 placeholder).
+//
+// The stub IS this route's content, so it hydrates `client:load`. It consumes
+// no focus intent here (bare system route → `focusIntentForRoute` is null);
+// `/location/[slug]` is where the deep-link focus intent is wired.
+//
+// VISUAL DESIGN: semantic, unstyled — re-skinned in Phase 2/3 (UI_UX_Designer
+// is parked). See src/systems/astronav/README.md.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LocaleSwitch from "../core/i18n/LocaleSwitch";
+import AstronavIsland from "../systems/astronav/AstronavIsland";
 ---
 
-<SystemPlaceholder system="astronav" title="ASTRONAVIGATION" phase="Phase 7 (stub: #21)" />
+<BaseLayout
+  title="ASTRONAVIGATION — Stellar Attractor"
+  description="Astronavigation — MVP stub (#21). The real Local Bubble integration is Phase 7."
+>
+  <nav aria-label="Language / Язык">
+    <LocaleSwitch client:idle />
+  </nav>
+
+  <main>
+    <AstronavIsland client:load />
+
+    <noscript>
+      <section aria-label="Astronavigation">
+        <h2>ASTRONAVIGATION</h2>
+        <p>SYSTEM ONLINE</p>
+        <p>LOCAL SPACE</p>
+        <p>COMMONWEALTH OVERLAY</p>
+        <p>[ PROTOTYPE MODULE ]</p>
+        <p>This module requires JavaScript. Records remain reachable through the
+          <a href="/database">Database Index</a>.</p>
+      </section>
+    </noscript>
+
+    <nav aria-label="Site">
+      <a href="/database">Database Index</a>
+      {" · "}
+      <a href="/">Cockpit</a>
+    </nav>
+  </main>
+</BaseLayout>

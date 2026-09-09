@@ -1,13 +1,36 @@
 ---
 // /location/<slug> — entity route (#19 AC 1). Semantic structure only; visual design
-// is Phase 2/3 + a UI_UX_Designer pass. All rendering lives in EntityDocument.
+// is Phase 2/3 + a UI_UX_Designer pass. The record itself renders in EntityDocument.
+//
+// #21 addition: `location` is a spatial entity type (→ Astronav). We derive a
+// deep-link focus intent from the entity via the #19 routing contract
+// (`focusIntentForEntity`) and mount the Astronav stub into EntityDocument's
+// additive `system-mount` slot in a "focusing <SLUG>" state — proving the
+// routing contract end to end (`/location/fomalhaut` → FOCUSING FOMALHAUT).
+// The mount is additive: the server-rendered record is unchanged.
 import EntityDocument from "../../components/EntityDocument.astro";
+import AstronavIsland from "../../systems/astronav/AstronavIsland";
 import { entities } from "../../core/entities";
-import { entityStaticPaths } from "../../core/navigation";
+import {
+  entityStaticPaths,
+  focusIntentForEntity,
+  isSpatialFocusIntent,
+} from "../../core/navigation";
 
 export const getStaticPaths = () => entityStaticPaths(entities, "location");
 
 const { entity } = Astro.props;
+
+const focusIntent = focusIntentForEntity(entity);
+const mountAstronav = isSpatialFocusIntent(focusIntent);
 ---
 
-<EntityDocument entity={entity} />
+<EntityDocument entity={entity}>
+  {
+    mountAstronav && (
+      <section slot="system-mount" aria-label="Astronavigation view">
+        <AstronavIsland client:idle focusIntent={focusIntent} />
+      </section>
+    )
+  }
+</EntityDocument>
