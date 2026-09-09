@@ -1,0 +1,7 @@
+{
+  "id": "station.base32",
+  "type": "station",
+  "slug": "base32",
+  "name": { "ru": "База №32", "en": "Base #32" },
+  "relations": [{ "type": "hosts", "target": "person.zane" }]
+}

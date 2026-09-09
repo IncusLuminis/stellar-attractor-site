@@ -1,0 +1,7 @@
+{
+  "id": "person.inline-filename",
+  "type": "person",
+  "slug": "inline-filename",
+  "name": { "ru": "Файл", "en": "Inline Filename" },
+  "media": [{ "id": "zane-portrait.png" }]
+}

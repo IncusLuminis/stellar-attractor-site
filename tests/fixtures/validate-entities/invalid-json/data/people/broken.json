@@ -1,0 +1,6 @@
+{
+  "id": "person.broken",
+  "type": "person",
+  "slug": "broken",
+  "name": { "ru": "Сломан", "en": "Broken" },
+}

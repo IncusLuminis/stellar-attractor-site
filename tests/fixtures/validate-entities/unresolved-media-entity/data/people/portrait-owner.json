@@ -1,0 +1,7 @@
+{
+  "id": "person.portrait-owner",
+  "type": "person",
+  "slug": "portrait-owner",
+  "name": { "ru": "Портрет", "en": "Portrait Owner" },
+  "media": [{ "id": "media.ghost-portrait", "role": "portrait" }]
+}

@@ -1,0 +1,6 @@
+{
+  "id": "station.realx",
+  "type": "station",
+  "slug": "realx",
+  "name": { "ru": "Станция Икс", "en": "Station X" }
+}

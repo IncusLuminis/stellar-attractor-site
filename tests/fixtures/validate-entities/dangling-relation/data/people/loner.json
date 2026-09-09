@@ -1,0 +1,7 @@
+{
+  "id": "person.loner",
+  "type": "person",
+  "slug": "loner",
+  "name": { "ru": "Одиночка", "en": "Loner" },
+  "relations": [{ "type": "assigned_to", "target": "station.ghost" }]
+}

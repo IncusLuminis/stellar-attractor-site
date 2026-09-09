@@ -1,0 +1,48 @@
+name: CI
+
+# Blocking checks for the universe site. No deploy steps — deployment is out of
+# scope project-wide (Implementation Plan §10). Story #18.
+#
+# Branch protection: require the status check named "verify" on `main`.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # One in-flight run per PR (superseded pushes are cancelled); pushes to `main`
+  # key on the commit SHA so merge commits never cancel each other's checks.
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate universe entities (schema + referential integrity)
+        run: npm run validate:entities
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build

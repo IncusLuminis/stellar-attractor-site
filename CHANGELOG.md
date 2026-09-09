@@ -6,11 +6,26 @@ This project follows Keep a Changelog.
 
 ### Added
 
+- CI entity validation (Epic #14, Story #18): `scripts/validate-entities.ts` is
+  now live — schema-validates every `data/<type>/*.json` against the #16 Zod
+  schemas and runs the cross-file integrity checks (`Technical Architecture §12`):
+  duplicate `id` (global) / `slug` (scoped to declared `type`), unknown `type`,
+  misfiled files, dangling `relation.target`, missing required `ru`/`en`
+  translation, and unresolved media references (`scripts/check-media-refs.ts` —
+  `media.<slug>` refs resolved against `data/media/` entities; asset-path refs
+  format-checked pending the media pipeline). Human-readable report (file, entity
+  id, field, reason); non-zero exit fails `npm run build` via the existing
+  `prebuild` hook. New `npm run validate:entities` / `npm run check:media-refs`.
+  `tests/validate-entities.test.ts` + `tests/fixtures/validate-entities/` cover
+  every §12 failure mode with a broken fixture. First CI for the repo:
+  `.github/workflows/ci.yml` runs `npm ci` + validate + typecheck + test + build
+  as a blocking `verify` check on PRs to `main` (no deploy steps). Node floor
+  pinned (`.nvmrc`, `engines`, `node-version-file` in CI).
 - Phase 1 Astro project skeleton (Epic #14, Story #15): Astro application shell
   with `@astrojs/preact` for islands; strict TypeScript
   (`astro/tsconfigs/strict`); `astro dev` / `build` / `preview` / `astro check`
-  scripts; `prebuild` hook wiring placeholder `scripts/validate-entities.ts`
-  (#18) and `scripts/build-search-index.ts` (Phase 4 / #38); repo layout per
+  scripts; `prebuild` hook wiring `scripts/validate-entities.ts` (#18) and
+  `scripts/build-search-index.ts` (Phase 4 / #38); repo layout per
   Implementation Plan §3 (`src/pages`, `src/layouts`, `src/systems`, `src/hud`,
   `src/core`, `src/media`, `src/content`, `data/`, `schemas/`); `src/pages/index.astro`
   mounting the Phase 0 cockpit as a `client:idle` island; a plain
