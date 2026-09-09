@@ -18,6 +18,12 @@ import "../hud/hud.css";
 //      > `en` on the client and swaps `[data-i18n]` text after hydration)
 //   3. `<html lang>` already existed — the boot script updates it client-side.
 // Pages prerender the DEFAULT locale (`en`); see src/core/i18n/README.md.
+//
+// #19 addition (routing): a per-route <link rel="canonical"> pointing at the
+// clean URL (no `?lang=`). Entity pages are directly addressable and must not
+// be treated as duplicates of `/` or of their own `?lang=ru` variant
+// (Technical Architecture §40). The clean URL is exactly the `en` hreflang
+// alternate, so it is reused rather than recomputed.
 import { DEFAULT_LOCALE, type Locale } from "../core/i18n/types";
 import { buildHreflangAlternates } from "../core/i18n/hreflang";
 
@@ -34,6 +40,8 @@ const {
 } = Astro.props;
 
 const hreflangAlternates = buildHreflangAlternates(Astro.url);
+const canonicalHref =
+  hreflangAlternates.find((alt) => alt.hreflang === "en")?.href ?? Astro.url.toString();
 ---
 
 <!doctype html>
@@ -47,6 +55,7 @@ const hreflangAlternates = buildHreflangAlternates(Astro.url);
         <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
       ))
     }
+    <link rel="canonical" href={canonicalHref} />
     <title>{title}</title>
     <script>
       import "../core/i18n/boot";
