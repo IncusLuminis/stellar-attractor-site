@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Stellar Attractor — interactive universe site. Astro application shell + framework-independent vanilla-TypeScript cockpit/HUD, mounted as islands.",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
