@@ -11,17 +11,29 @@
 // (those are #25/#26). Importing hud.css here also pulls in tokens.css.
 import "../hud/hud.css";
 
+// i18n hooks (#20). Kept minimal + additive so #19 (routing) can merge its own
+// changes to this file cleanly. Three additions, all below:
+//   1. `hreflang` alternates in <head>, from `buildHreflangAlternates(Astro.url)`
+//   2. a module <script> importing `../core/i18n/boot` (resolves ?lang= > stored
+//      > `en` on the client and swaps `[data-i18n]` text after hydration)
+//   3. `<html lang>` already existed — the boot script updates it client-side.
+// Pages prerender the DEFAULT locale (`en`); see src/core/i18n/README.md.
+import { DEFAULT_LOCALE, type Locale } from "../core/i18n/types";
+import { buildHreflangAlternates } from "../core/i18n/hreflang";
+
 interface Props {
   title: string;
   description?: string;
-  lang?: "en" | "ru";
+  lang?: Locale;
 }
 
 const {
   title,
   description = "Stellar Attractor — an interactive universe.",
-  lang = "en",
+  lang = DEFAULT_LOCALE,
 } = Astro.props;
+
+const hreflangAlternates = buildHreflangAlternates(Astro.url);
 ---
 
 <!doctype html>
@@ -30,7 +42,15 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
+    {
+      hreflangAlternates.map((alt) => (
+        <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+      ))
+    }
     <title>{title}</title>
+    <script>
+      import "../core/i18n/boot";
+    </script>
   </head>
   <body>
     <slot />
