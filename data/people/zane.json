@@ -1,0 +1,37 @@
+{
+  "id": "person.zane",
+  "type": "person",
+  "slug": "zane",
+  "name": {
+    "en": "Zane",
+    "ru": "Зейн"
+  },
+  "shortDescription": {
+    "en": "Research Specialist of Base #32; a cybernetically reconstructed human who spent twenty-four years alone as caretaker of a remote outpost orbiting Fomalhaut.",
+    "ru": "Научный специалист Базы №32; кибернетически восстановленный человек, проведший двадцать четыре года в одиночестве смотрителем удалённой станции на орбите Фомальгаута."
+  },
+  "description": {
+    "en": "Zane is a Research Specialist of Base #32 and a former exploration specialist of the Civil Exploration Corps, and he reports to Admiral Illar Arden. Officially he is neither military personnel nor command staff, but his experience has made him an invaluable member of the station's scientific community. Before his reconstruction he served on expeditions beyond the settled regions of the Commonwealth, and during one of them he became involved in humanity's first encounter with an unknown intelligent civilisation, under circumstances that remain classified. That expedition ended in catastrophe: almost his entire body was destroyed and only his brain survived, after which advanced cybernetic reconstruction let him live on as a reconstructed human whose identity endured. Rather than return to ordinary life he accepted a posting as caretaker of a remote scientific outpost near Fomalhaut; circumstances beyond his control stretched that assignment from a few years to nearly a quarter of a century. In isolation, with only scientific literature for company, he taught himself astronomy and astrophysics. He has never stopped considering himself human, or a caretaker.",
+    "ru": "Зейн — научный специалист Базы №32 и бывший специалист-исследователь Корпуса гражданских исследований; он подчиняется адмиралу Иллару Ардену. Формально он не относится ни к военному персоналу, ни к командному составу станции, но его опыт сделал его незаменимым членом её научного сообщества. До реконструкции он участвовал в экспедициях за пределами освоенных областей Содружества, и во время одной из них оказался причастен к первому в истории человечества контакту с неизвестной разумной цивилизацией — при обстоятельствах, которые остаются засекреченными. Та экспедиция закончилась катастрофой: почти всё его тело было уничтожено, уцелел лишь мозг, после чего передовая кибернетическая реконструкция позволила ему жить дальше — восстановленным человеком, сохранившим свою личность. Вместо возвращения к обычной жизни он принял назначение смотрителем удалённой научной станции близ Фомальгаута; независящие от него обстоятельства растянули это назначение с нескольких лет почти до четверти века. В изоляции, где единственным собеседником была научная литература, он самостоятельно освоил астрономию и астрофизику. Он никогда не переставал считать себя человеком — и смотрителем."
+  },
+  "clearance": "civilian",
+  "media": [
+    {
+      "id": "portraits/zane",
+      "role": "portrait",
+      "alt": {
+        "en": "Portrait of Zane; visible cybernetic reconstruction on one side of his face, white hair, a neatly kept beard.",
+        "ru": "Портрет Зейна; на одной стороне лица видны следы кибернетической реконструкции, седые волосы, аккуратная борода."
+      }
+    }
+  ],
+  "relations": [
+    { "type": "reports_to", "target": "person.illar-arden" },
+    { "type": "rescued_by", "target": "person.illar-arden" },
+    { "type": "assigned_to", "target": "station.base32" },
+    { "type": "served_at", "target": "location.fomalhaut" },
+    { "type": "participated_in", "target": "mission.exodus" },
+    { "type": "traveled_aboard", "target": "vessel.stellar-nomad" }
+  ],
+  "tags": ["research-specialist", "base-32", "civil-exploration-corps", "first-contact", "cybernetic-reconstruction", "fomalhaut"]
+}

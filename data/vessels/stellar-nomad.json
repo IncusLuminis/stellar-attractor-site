@@ -1,0 +1,35 @@
+{
+  "id": "vessel.stellar-nomad",
+  "type": "vessel",
+  "slug": "stellar-nomad",
+  "name": {
+    "en": "Stellar Nomad",
+    "ru": "Звёздный кочевник"
+  },
+  "shortDescription": {
+    "en": "A long-range expedition and research vessel of the Commonwealth's Expedition Fleet, assigned in support of Base #32's programme; it carried the expedition to the Fomalhaut system. (Vessel name is a working label from the project's architecture plan, not found in the source canon.)",
+    "ru": "Дальний экспедиционно-исследовательский корабль Экспедиционного флота Содружества, приданный в поддержку программы Базы №32; доставил экспедицию в систему Фомальгаута. (Название корабля — рабочее обозначение из архитектурного плана проекта; в исходном каноне не встречается.)"
+  },
+  "description": {
+    "en": "The Stellar Nomad is a long-range expedition and research vessel of the Expedition Fleet, one of the founding institutions of the Commonwealth of Independent Planets. The Fleet was never built as an instrument of conquest: its purpose is to sustain a human presence beyond settled space — escorting scientific expeditions, building and supplying research stations, securing transit routes and carrying out search and rescue — under the rule that the Fleet exists not for the sake of its ships but for the people they carry. Ships of this kind are crewed by officers who see themselves as explorers first, trained across navigation, engineering, the natural sciences, psychology and risk management; on an expedition the commander holds final authority over the safety of people and ship, while the science programme stays with its own leader. Assigned in support of Base #32, the Stellar Nomad is equipped for multi-year, largely autonomous operations in little-studied regions of the Galaxy, and it carried the expedition that travelled to the Fomalhaut system in search of the phenomenon later called the Stellar Attractor.\n\nProvenance: the source canon (persona and world files) names no individual Fleet vessel. \"Stellar Nomad\" is the seed identifier assigned by the project's Implementation Plan (§4) and Technical Architecture (§45); everything else in this record is drawn from the Expedition Fleet canon (world/04-institutions/expedition-fleet.md).",
+    "ru": "«Звёздный кочевник» — дальний экспедиционно-исследовательский корабль Экспедиционного флота, одного из основополагающих институтов Содружества Независимых Планет. Флот никогда не создавался как инструмент завоевания: его назначение — поддерживать присутствие человека за пределами освоенного пространства: сопровождать научные экспедиции, строить и снабжать исследовательские станции, обеспечивать безопасность маршрутов и проводить поисково-спасательные операции — по правилу, что Флот существует не ради кораблей, а ради людей, которых они несут. Корабли такого рода несут экипажи из офицеров, которые считают себя прежде всего экспедиционерами и подготовлены в навигации, инженерном деле, естественных науках, психологии и управлении рисками; в экспедиции командир обладает окончательной властью над безопасностью людей и корабля, тогда как научная программа остаётся за её руководителем. Приданный в поддержку Базы №32, «Звёздный кочевник» оборудован для многолетней, во многом автономной работы в малоизученных районах Галактики и доставил экспедицию, отправившуюся в систему Фомальгаута на поиски явления, позже названного Звёздным Аттрактором.\n\nПроисхождение: в исходном каноне (файлы персон и мира) не назван ни один отдельный корабль Флота. «Звёздный кочевник» — сид-идентификатор, заданный планом реализации проекта (§4) и технической архитектурой (§45); всё остальное в этой записи взято из канона об Экспедиционном флоте (world/04-institutions/expedition-fleet.md)."
+  },
+  "clearance": "guest",
+  "media": [
+    {
+      "id": "vessels/stellar-nomad",
+      "role": "hero",
+      "alt": {
+        "en": "The Expedition Fleet vessel Stellar Nomad under way.",
+        "ru": "Корабль Экспедиционного флота «Звёздный кочевник» в пути."
+      }
+    }
+  ],
+  "relations": [
+    { "type": "operated_by", "target": "station.base32" },
+    { "type": "assigned_to", "target": "mission.exodus" },
+    { "type": "traveled_to", "target": "location.fomalhaut" },
+    { "type": "carried", "target": "person.zane" }
+  ],
+  "tags": ["expedition-fleet", "research-vessel", "long-range", "base-32", "provisional-name"]
+}
