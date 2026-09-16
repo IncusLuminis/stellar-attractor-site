@@ -1,0 +1,147 @@
+---
+/**
+ * hud-platform-demo — NOT a product page. This is the deliverable for
+ * IncusLuminis/assets#17 ("Integrate one external consumer"): a narrow,
+ * isolated technical proof that this repo, as a genuinely external,
+ * non-monorepo consumer, can render a published IncusLuminis HUD Platform
+ * Theme using ONLY the public Runtime / Theme Contract API
+ * (`new Hud(...)` + `mount` + `setData`), resolved live from the published
+ * Registry/CDN at `https://assets-4gy.pages.dev/`.
+ *
+ * SCOPE GUARD — please read before touching this file: the word "HUD" here
+ * refers to the reusable, cross-project "HUD Platform" Theme system in
+ * `IncusLuminis/assets` (also used by the unrelated visualization-studio-tools
+ * Playground). It has nothing to do with, and must not be confused with,
+ * this SITE's own bespoke cockpit visual system (`src/hud/`, `src/cockpit/`),
+ * which is a separate, explicitly parked piece of this site's own Phase 2/3
+ * roadmap. This page does not import from, extend, or reference either of
+ * those directories, and is deliberately NOT linked from primary navigation
+ * (see tests/routes-structure.test.ts's SYSTEM_ROUTES list, which this route
+ * is intentionally absent from).
+ *
+ * All mounting logic lives in `src/hud-platform-proof/hud-platform-demo.client.ts`
+ * (client-side only, real Theme mounting against the live CDN) and is
+ * pulled in below via a thin `<script>` import — matching this repo's
+ * existing convention for non-trivial client logic (see
+ * `src/core/i18n/boot.ts`, imported the same way from
+ * `src/layouts/BaseLayout.astro`) so it gets proper TypeScript checking
+ * under this repo's strict `tsconfig.json` instead of Astro's untyped
+ * `is:inline` fallback. It is deliberately NOT a sibling `.ts` file under
+ * `src/pages/` — Astro's file-based routing would pick it up as its own
+ * route and try to server-render its browser-only top-level code (verified
+ * hands-on: this broke `astro build` until the file was moved out). The
+ * frontmatter here is static-only so the page still participates normally
+ * in `astro build`.
+ *
+ * Findings/gaps from this integration are written up in the PR description
+ * for IncusLuminis/assets#17, not duplicated here as committed docs.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="HUD Platform Integration Proof — Stellar Attractor"
+  description="Technical proof only: this site rendering a published IncusLuminis HUD Platform Theme via the public Runtime/Registry API (IncusLuminis/assets#17). Not a product page."
+>
+  <main class="hud-demo-page">
+    <header class="hud-demo-banner">
+      <p>
+        <strong>HUD Platform integration proof</strong> —
+        <a href="https://github.com/IncusLuminis/assets/issues/17" rel="noopener">IncusLuminis/assets#17</a>.
+        This page renders two published HUD Platform Themes, fetched live
+        from the public Registry/CDN at <code>assets-4gy.pages.dev</code>,
+        using only <code>new Hud(...)</code> + <code>mount()</code> +
+        <code>setData()</code> — no Theme-internal knowledge. It is an
+        isolated technical proof, not a designed page, and is unrelated to
+        this site's own (separately parked) cockpit/HUD visual system.
+      </p>
+    </header>
+
+    <section aria-labelledby="hud-demo-01-heading">
+      <h2 id="hud-demo-01-heading">hud-01 &ldquo;Object Lock&rdquo; — SVG engine — variant <code>mini</code>, orientation <code>landscape</code></h2>
+      <div id="hud-demo-01" class="hud-demo-mount" data-hud-demo="hud-01">
+        <p class="hud-demo-loading">Loading…</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="hud-demo-03-heading">
+      <h2 id="hud-demo-03-heading">hud-03 &ldquo;HUD Post&rdquo; — CSS engine — variant <code>micro</code>, orientation <code>portrait</code></h2>
+      <div id="hud-demo-03" class="hud-demo-mount" data-hud-demo="hud-03">
+        <p class="hud-demo-loading">Loading…</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="hud-demo-log-heading">
+      <h2 id="hud-demo-log-heading">Integration log</h2>
+      <pre id="hud-demo-log" class="hud-demo-log">(script has not run yet)</pre>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  /*
+   * Deliberately utilitarian — Phase 2 visual polish is parked and out of
+   * scope for this proof (IncusLuminis/assets#17). Just enough layout that
+   * the two mounted Themes and the log are legible side by side.
+   */
+  .hud-demo-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .hud-demo-banner {
+    border: 1px dashed currentColor;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .hud-demo-mount {
+    min-height: 160px;
+    /* Several manifests declare `overflowVisible: true` (e.g. lock-box glow,
+       drop-shadow frames) — give mounted Themes room instead of clipping. */
+    overflow: visible;
+    border: 1px solid rgba(216, 251, 255, 0.25);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hud-demo-loading {
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  /* Populated only on a mount() failure — see mountDemo() in
+     hud-platform-demo.client.ts. */
+  .hud-demo-fallback {
+    color: #ff8080;
+    font-size: 0.9rem;
+  }
+
+  .hud-demo-log {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.8rem;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid rgba(216, 251, 255, 0.25);
+    padding: 0.75rem;
+  }
+</style>
+
+<script>
+  // No attributes on this tag on purpose: a bare `<script>` is treated by
+  // Astro as a module by default, hoisted/bundled by Vite with full
+  // TypeScript processing (see the frontmatter comment above and
+  // `src/layouts/BaseLayout.astro`'s i18n boot script for the same
+  // pattern). All real logic — including the dynamic `import()` of the
+  // Runtime bundle from `https://assets-4gy.pages.dev/` — lives in
+  // `src/hud-platform-proof/hud-platform-demo.client.ts` (kept out of
+  // `src/pages/` on purpose; see that file's own header comment).
+  import "../hud-platform-proof/hud-platform-demo.client";
+</script>
